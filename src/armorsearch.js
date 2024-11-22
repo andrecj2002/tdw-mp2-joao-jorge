@@ -27,6 +27,12 @@ const ArmorSearch = () => {
           filteredArmor.map(piece => (
             <div key={piece.id}>
               <h2>{piece.name}</h2>
+              {piece.assets && piece.assets.imageMale && (
+                <img src={piece.assets.imageMale} alt={`${piece.name} male`} />
+              )}
+              {piece.assets && piece.assets.imageFemale && (
+                <img src={piece.assets.imageFemale} alt={`${piece.name} female`} />
+              )}
               <p>{piece.description}</p>
             </div>
           ))
@@ -34,6 +40,12 @@ const ArmorSearch = () => {
           armor.map(piece => (
             <div key={piece.id}>
               <h2>{piece.name}</h2>
+              {piece.assets && piece.assets.imageMale && (
+                <img src={piece.assets.imageMale} alt={`${piece.name} male`} />
+              )}
+              {piece.assets && piece.assets.imageFemale && (
+                <img src={piece.assets.imageFemale} alt={`${piece.name} female`} />
+              )}
               <p>{piece.description}</p>
             </div>
           ))

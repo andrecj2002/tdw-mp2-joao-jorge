@@ -1,0 +1,51 @@
+name: Pipeline Geral
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  install-dependencies:
+    name: Install Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Clear npm cache
+        run: npm cache clean --force
+
+      - name: Install dependencies
+        run: npm install
+
+  check-mhw-api:
+    name: Check MHW API
+    runs-on: ubuntu-latest
+    needs: install-dependencies
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Check MHW API Status
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://mhw-db.com/armor)
+          if [ "$response" -eq 200 ]; then
+            echo "MHW API is reachable."
+          else
+            echo "Failed to reach MHW API. Status code: $response"
+            exit 1
+          fi

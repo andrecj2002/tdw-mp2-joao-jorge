@@ -14,3 +14,13 @@ code {
 
 @import 'flowbite/dist/flowbite.css';
 
+@font-face {
+  font-family: "Monster Hunter Condensed";
+  src: url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.eot");
+  src: url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.eot?#iefix") format("embedded-opentype"),
+       url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.woff2") format("woff2"),
+       url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.woff") format("woff"),
+       url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.ttf") format("truetype"),
+       url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.svg#Monster Hunter Condensed") format("svg");
+}
+

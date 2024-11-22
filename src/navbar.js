@@ -6,7 +6,9 @@ const Navbar = () => {
     <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-900">
       <div className="container flex flex-wrap justify-between items-center mx-auto">
         <Link to="/" className="flex items-center">
-          <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">WorldExplorer</span>
+          <span className="self-center text-3xl font-semibold whitespace-nowrap dark:text-white" style={{ fontFamily: 'Monster Hunter Condensed' }}>
+            WorldExplorer
+          </span>
         </Link>
         <div className="flex md:order-2">
           <div className="relative mt-3 md:mt-0">

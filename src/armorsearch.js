@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import semImagem from './media/no-image-svgrepo-com.svg';
 
 const ArmorSearch = () => {
   const [armor, setArmor] = useState([]);
@@ -241,34 +242,31 @@ const ArmorSearch = () => {
       {loading ? (
         <div className="text-center">Loading...</div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-          {currentItems.length > 0 ? (
-            currentItems.map(piece => (
-              <div key={piece.id} className="border p-2 rounded-lg">
-                <h2 className="text-lg font-bold">{piece.name}</h2>
-                <div className="flex space-x-2">
-                  {piece.assets?.imageMale && (
-                    <img
-                      src={piece.assets.imageMale}
-                      alt={`${piece.name} male`}
-                      className="w-auto h-auto max-h-8 max-w-20"
-                    />
-                  )}
-                  {piece.assets?.imageFemale && (
-                    <img
-                      src={piece.assets.imageFemale}
-                      alt={`${piece.name} female`}
-                      className="w-auto h-auto max-h-8 max-w-20"
-                    />
-                  )}
-                </div>
-                <p className="text-sm">{piece.description}</p>
-              </div>
-            ))
-          ) : (
-            <div className="text-center col-span-full">No armor pieces match the search criteria.</div>
-          )}
+<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+  {currentItems.length > 0 ? (
+    currentItems.map(piece => (
+      <div key={piece.id} className="border p-2 rounded-lg">
+        <h2 className="text-lg font-bold">{piece.name}</h2>
+        <div className="flex justify-center items-center space-x-2">
+          {/* Render both male and female images with a larger and consistent size */}
+          <img
+            src={piece.assets?.imageMale || semImagem} // Fallback to placeholder if no male image
+            alt={`${piece.name} male`}
+            className="w-36 h-36 object-contain" // Even larger size (8rem)
+          />
+          <img
+            src={piece.assets?.imageFemale || semImagem} // Fallback to placeholder if no female image
+            alt={`${piece.name} female`}
+            className="w-36 h-36 object-contain" // Even larger size (8rem)
+          />
         </div>
+        <p className="text-sm">{piece.description}</p>
+      </div>
+    ))
+  ) : (
+    <div className="text-center col-span-full">No armor pieces match the search criteria.</div>
+  )}
+</div>
       )}
 
       <div className="flex justify-center mt-4">

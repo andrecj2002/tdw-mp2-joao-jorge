@@ -147,12 +147,14 @@ const ArmorSearch = () => {
           {currentItems.map(piece => (
             <div key={piece.id} className="border p-2 rounded-lg">
               <h2 className="text-lg font-bold">{piece.name}</h2>
-              {piece.assets && piece.assets.imageMale && (
-                <img src={piece.assets.imageMale} alt={`${piece.name} male`} className="w-full h-auto max-h-8 max-w-20" />
-              )}
-              {piece.assets && piece.assets.imageFemale && (
-                <img src={piece.assets.imageFemale} alt={`${piece.name} female`} className="w-full h-auto max-h-8 max-w-20" />
-              )}
+              <div className="flex space-x-2">
+                {piece.assets && piece.assets.imageMale && (
+                  <img src={piece.assets.imageMale} alt={`${piece.name} male`} className="w-auto h-auto max-h-8 max-w-20" />
+                )}
+                {piece.assets && piece.assets.imageFemale && (
+                  <img src={piece.assets.imageFemale} alt={`${piece.name} female`} className="w-auto h-auto max-h-8 max-w-20" />
+                )}
+              </div>
               <p className="text-sm">{piece.description}</p>
             </div>
           ))}

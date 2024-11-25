@@ -10,9 +10,10 @@ const ArmorSearch = () => {
   const [itemsPerPage] = useState(10);
   const [filteredSkills, setFilteredSkills] = useState([]);
   const [filteredNames, setFilteredNames] = useState([]);
-  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);  // Track suggestions box state
+  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false); // Track suggestions box state
 
   const suggestionsRef = useRef(null); // Reference for suggestions box
+  const inputRef = useRef(null); // Reference for the input field
 
   useEffect(() => {
     const fetchData = async () => {
@@ -115,16 +116,56 @@ const ArmorSearch = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl text-center mb-4">Search for Armor</h1>
       <div className="flex justify-center items-center mb-4 space-x-2">
-        <input
-          type="text"
-          placeholder="Search armor..."
-          value={query}
-          onChange={e => {
-            setQuery(e.target.value);
-            setIsSuggestionsOpen(true);  // Open suggestions when user types
-          }}
-          className="p-2 border border-gray-300 rounded-lg w-1/2"
-        />
+        <div className="relative w-1/2"> {/* Set the width to match the input field */}
+          <input
+            type="text"
+            placeholder="Search armor..."
+            value={query}
+            onChange={e => {
+              setQuery(e.target.value);
+              setIsSuggestionsOpen(true);  // Open suggestions when user types
+            }}
+            ref={inputRef}  // Reference the input field
+            className="p-2 border border-gray-300 rounded-lg w-full" // Make input take full width
+          />
+          
+          {/* Name Suggestions for Name Search */}
+          {searchType === 'name' && query && isSuggestionsOpen && (
+            <ul className="absolute bg-white border w-full max-h-48 overflow-auto mt-1" ref={suggestionsRef}>
+              {filteredNames.map(piece => (
+                <li
+                  key={piece.id}
+                  className="p-2 cursor-pointer hover:bg-gray-200"
+                  onClick={() => {
+                    setQuery(piece.name);
+                    setIsSuggestionsOpen(false); // Close suggestions on selection
+                  }}
+                >
+                  {piece.name}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {/* Skill Suggestions for Skills Search */}
+          {searchType === 'skills' && query && isSuggestionsOpen && (
+            <ul className="absolute bg-white border w-full max-h-48 overflow-auto mt-1" ref={suggestionsRef}>
+              {filteredSkills.map(skill => (
+                <li
+                  key={skill.id}
+                  className="p-2 cursor-pointer hover:bg-gray-200"
+                  onClick={() => {
+                    setQuery(skill.name || skill.skillName);
+                    setIsSuggestionsOpen(false); // Close suggestions on selection
+                  }}
+                >
+                  {skill.name || skill.skillName}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        
         <select
           value={searchType}
           onChange={e => setSearchType(e.target.value)}
@@ -136,6 +177,22 @@ const ArmorSearch = () => {
           <option value="slots">Slots</option>
           <option value="skills">Skills</option>
         </select>
+
+        {/* Dropdown for Skills */}
+        {searchType === 'skills' && (
+          <select
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            className="p-2 border border-gray-300 rounded-lg"
+          >
+            <option value="">Select a Skill</option>
+            {skills.map(skill => (
+              <option key={skill.id} value={skill.name || skill.skillName}>
+                {skill.name || skill.skillName}
+              </option>
+            ))}
+          </select>
+        )}
 
         {/* Dropdown for Rarity */}
         {searchType === 'rarity' && (
@@ -180,42 +237,6 @@ const ArmorSearch = () => {
           </select>
         )}
       </div>
-
-      {/* Name Suggestions for Name Search */}
-      {searchType === 'name' && query && isSuggestionsOpen && (
-        <ul className="absolute bg-white border w-full max-h-48 overflow-auto mt-1" ref={suggestionsRef}>
-          {filteredNames.map(piece => (
-            <li
-              key={piece.id}
-              className="p-2 cursor-pointer hover:bg-gray-200"
-              onClick={() => {
-                setQuery(piece.name);
-                setIsSuggestionsOpen(false); // Close suggestions on selection
-              }}
-            >
-              {piece.name}
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {/* Skill Suggestions for Skills Search */}
-      {searchType === 'skills' && query && isSuggestionsOpen && (
-        <ul className="absolute bg-white border w-full max-h-48 overflow-auto mt-1" ref={suggestionsRef}>
-          {filteredSkills.map(skill => (
-            <li
-              key={skill.id}
-              className="p-2 cursor-pointer hover:bg-gray-200"
-              onClick={() => {
-                setQuery(skill.name || skill.skillName);
-                setIsSuggestionsOpen(false); // Close suggestions on selection
-              }}
-            >
-              {skill.name || skill.skillName}
-            </li>
-          ))}
-        </ul>
-      )}
 
       {loading ? (
         <div className="text-center">Loading...</div>

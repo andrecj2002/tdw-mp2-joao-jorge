@@ -1,15 +1,23 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family: Arial, sans-serif;
+  background-image: url('media/bg.svg');
+  background-size: cover;  /* Ensures the image covers the entire screen */
+  background-position: center;  /* Centers the image */
+  background-attachment: fixed;  /* Makes the image stay in place when scrolling */
+  height: 100vh;  /* Ensures the body takes up the full height of the viewport */
+  width: 100%;  /* Ensures the body takes up the full width */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: bold;
+}
+
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
 @import "flowbite/dist/flowbite.css";
@@ -18,14 +26,9 @@ code {
   font-family: "Monster Hunter Condensed";
   src: url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.eot");
   src:
-    url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.eot?#iefix")
-      format("embedded-opentype"),
-    url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.woff2")
-      format("woff2"),
-    url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.woff")
-      format("woff"),
-    url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.ttf")
-      format("truetype"),
-    url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.svg#Monster Hunter Condensed")
-      format("svg");
+    url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.eot?#iefix") format("embedded-opentype"),
+    url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.woff2") format("woff2"),
+    url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.woff") format("woff"),
+    url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.ttf") format("truetype"),
+    url("https://db.onlinewebfonts.com/t/8bc56fc7a910a43f38379c66bc4bff8e.svg#Monster Hunter Condensed") format("svg");
 }

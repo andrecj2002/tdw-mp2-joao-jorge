@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import the useNavigate hook
 import semImagem from './media/no-image-svgrepo-com.svg';
 
 const ArmorSearch = () => {
@@ -8,13 +9,14 @@ const ArmorSearch = () => {
   const [searchType, setSearchType] = useState('name');
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(12);
   const [filteredSkills, setFilteredSkills] = useState([]);
   const [filteredNames, setFilteredNames] = useState([]);
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false); // Track suggestions box state
 
   const suggestionsRef = useRef(null); // Reference for suggestions box
   const inputRef = useRef(null); // Reference for the input field
+  const navigate = useNavigate(); // Initialize useNavigate hook
 
   useEffect(() => {
     const fetchData = async () => {
@@ -242,31 +244,34 @@ const ArmorSearch = () => {
       {loading ? (
         <div className="text-center">Loading...</div>
       ) : (
-<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-  {currentItems.length > 0 ? (
-    currentItems.map(piece => (
-      <div key={piece.id} className="border p-2 rounded-lg">
-        <h2 className="text-lg font-bold">{piece.name}</h2>
-        <div className="flex justify-center items-center space-x-2">
-          {/* Render both male and female images with a larger and consistent size */}
-          <img
-            src={piece.assets?.imageMale || semImagem} // Fallback to placeholder if no male image
-            alt={`${piece.name} male`}
-            className="w-36 h-36 object-contain" // Even larger size (8rem)
-          />
-          <img
-            src={piece.assets?.imageFemale || semImagem} // Fallback to placeholder if no female image
-            alt={`${piece.name} female`}
-            className="w-36 h-36 object-contain" // Even larger size (8rem)
-          />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+          {currentItems.length > 0 ? (
+            currentItems.map(piece => (
+              <div
+                key={piece.id}
+                className="border p-2 rounded-lg cursor-pointer"
+                onClick={() => navigate(`/armor/${piece.id}`)} // Navigate to ArmorDetails on click
+              >
+                <h2 className="text-lg font-bold">{piece.name}</h2>
+                <div className="flex justify-center items-center space-x-2">
+                  <img
+                    src={piece.assets?.imageMale || semImagem}
+                    alt={`${piece.name} male`}
+                    className="w-36 h-36 object-contain"
+                  />
+                  <img
+                    src={piece.assets?.imageFemale || semImagem}
+                    alt={`${piece.name} female`}
+                    className="w-36 h-36 object-contain"
+                  />
+                </div>
+                <p className="text-sm">{piece.description}</p>
+              </div>
+            ))
+          ) : (
+            <div>No results found</div>
+          )}
         </div>
-        <p className="text-sm">{piece.description}</p>
-      </div>
-    ))
-  ) : (
-    <div className="text-center col-span-full">No armor pieces match the search criteria.</div>
-  )}
-</div>
       )}
 
       <div className="flex justify-center mt-4">
@@ -274,11 +279,7 @@ const ArmorSearch = () => {
           <button
             key={startPage + index}
             onClick={() => paginate(startPage + index)}
-            className={`px-2 py-1 mx-1 border rounded ${
-              currentPage === startPage + index
-                ? 'bg-blue-500 text-white'
-                : 'bg-white text-blue-500'
-            }`}
+            className={`px-2 py-1 mx-1 border rounded ${currentPage === startPage + index ? 'bg-blue-500 text-white' : 'bg-white text-blue-500'}`}
           >
             {startPage + index}
           </button>

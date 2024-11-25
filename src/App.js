@@ -1,7 +1,7 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Navbar from './navbar';
-import ArmorSearch from './armorsearch';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Navbar from "./navbar";
+import ArmorSearch from "./armorsearch";
 
 const App = () => {
   return (

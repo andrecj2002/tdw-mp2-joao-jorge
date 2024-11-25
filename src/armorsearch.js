@@ -5,17 +5,30 @@ const ArmorSearch = () => {
   const [query, setQuery] = useState('');
   const [searchType, setSearchType] = useState('name');
   const [loading, setLoading] = useState(true);
+  // items por página
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
-  // Fetch à API
+  // Fetch data from API with caching
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
-        const response = await fetch('https://mhw-db.com/armor');
-        const data = await response.json();
-        setArmor(data);
-        setLoading(false);
+        // Verificar se a página está guardada em cache
+        const cachedData = localStorage.getItem('armorData');
+        if (cachedData) {
+          // Se Sim, carregar essa cache
+          setArmor(JSON.parse(cachedData));
+          setLoading(false);
+        } else {
+          // Se não, ir buscar a info à API
+          const response = await fetch('https://mhw-db.com/armor');
+          const data = await response.json();
+          // Guarda a informação em cache
+          localStorage.setItem('armorData', JSON.stringify(data));
+          setArmor(data);
+          setLoading(false);
+        }
       } catch (error) {
         console.error('Error fetching armor:', error);
         setLoading(false);
@@ -24,6 +37,7 @@ const ArmorSearch = () => {
     fetchData();
   }, []);
 
+  // Mao-Down dos diferentes tipos de filtros
   const filteredArmor = armor.filter(piece => {
     switch (searchType) {
       case 'name':
@@ -45,14 +59,14 @@ const ArmorSearch = () => {
     }
   });
 
-  // Lógica de Paginação 
+  // Lógica da Paginação
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredArmor.slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Pagination controls
+  // Controlos de Paginação
   const totalPages = Math.ceil(filteredArmor.length / itemsPerPage);
   const maxPageNumbers = 8;
   const startPage = Math.max(1, currentPage - Math.floor(maxPageNumbers / 2));
@@ -121,7 +135,7 @@ const ArmorSearch = () => {
             onChange={e => setQuery(e.target.value)}
             className="p-2 border border-gray-300 rounded-lg"
           >
-            {/* Replace with actual skills list */}
+            {/* Adicionar o Resto das Skills */}
             <option value="attack">Attack</option>
             <option value="defense">Defense</option>
             <option value="health">Health</option>
@@ -133,7 +147,7 @@ const ArmorSearch = () => {
             onChange={e => setQuery(e.target.value)}
             className="p-2 border border-gray-300 rounded-lg"
           >
-            {/* Replace with actual decorations list */}
+            {/* Adicionar o resto das Decos */}
             <option value="attack">Attack</option>
             <option value="defense">Defense</option>
             <option value="health">Health</option>

@@ -45,7 +45,7 @@ const ArmorSearch = () => {
     fetchData();
   }, []);
 
-  // This will filter skills based on the query for suggestions
+  // Filter skills based on query for suggestions
   useEffect(() => {
     if (searchType === 'skills') {
       setFilteredSkills(
@@ -56,7 +56,7 @@ const ArmorSearch = () => {
     }
   }, [query, searchType, skills]);
 
-  // This will filter armor names based on the query for suggestions
+  // Filter armor names based on query for suggestions
   useEffect(() => {
     if (searchType === 'name') {
       setFilteredNames(
@@ -67,7 +67,7 @@ const ArmorSearch = () => {
     }
   }, [query, searchType, armor]);
 
-  // Reset the page and query when searchType changes
+  // Reset page and query when searchType changes
   useEffect(() => {
     setQuery('');
     setCurrentPage(1);
@@ -117,9 +117,12 @@ const ArmorSearch = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl text-center mb-4">Search for Armor</h1>
-      <div className="flex justify-center items-center mb-4 space-x-2">
-        <div className="relative w-1/2"> {/* Set the width to match the input field */}
+      {/* Increased Title Size */}
+      <h1 className="text-4xl font-bold text-center mb-4">Search for Armor</h1>
+
+      <div className="flex justify-center items-center mb-4 space-x-4">
+        {/* Search input and select */}
+        <div className="relative w-1/2">
           <input
             type="text"
             placeholder="Search armor..."
@@ -128,11 +131,11 @@ const ArmorSearch = () => {
               setQuery(e.target.value);
               setIsSuggestionsOpen(true);  // Open suggestions when user types
             }}
-            ref={inputRef}  // Reference the input field
-            className="p-2 border border-gray-300 rounded-lg w-full" // Make input take full width
+            ref={inputRef}
+            className="p-2 border border-gray-300 rounded-lg w-full"
           />
-          
-          {/* Name Suggestions for Name Search */}
+
+          {/* Name and Skill Suggestions */}
           {searchType === 'name' && query && isSuggestionsOpen && (
             <ul className="absolute bg-white border w-full max-h-48 overflow-auto mt-1" ref={suggestionsRef}>
               {filteredNames.map(piece => (
@@ -150,7 +153,6 @@ const ArmorSearch = () => {
             </ul>
           )}
 
-          {/* Skill Suggestions for Skills Search */}
           {searchType === 'skills' && query && isSuggestionsOpen && (
             <ul className="absolute bg-white border w-full max-h-48 overflow-auto mt-1" ref={suggestionsRef}>
               {filteredSkills.map(skill => (
@@ -168,7 +170,8 @@ const ArmorSearch = () => {
             </ul>
           )}
         </div>
-        
+
+        {/* Search Type Dropdown */}
         <select
           value={searchType}
           onChange={e => setSearchType(e.target.value)}
@@ -180,8 +183,10 @@ const ArmorSearch = () => {
           <option value="slots">Slots</option>
           <option value="skills">Skills</option>
         </select>
+      </div>
 
-        {/* Dropdown for Skills */}
+      {/* Filter Dropdowns Based on Search Type */}
+      <div className="flex justify-center space-x-4 mb-4">
         {searchType === 'skills' && (
           <select
             value={query}
@@ -197,7 +202,6 @@ const ArmorSearch = () => {
           </select>
         )}
 
-        {/* Dropdown for Rarity */}
         {searchType === 'rarity' && (
           <select
             value={query}
@@ -212,7 +216,6 @@ const ArmorSearch = () => {
           </select>
         )}
 
-        {/* Dropdown for Rank */}
         {searchType === 'rank' && (
           <select
             value={query}
@@ -225,7 +228,6 @@ const ArmorSearch = () => {
           </select>
         )}
 
-        {/* Dropdown for Slots */}
         {searchType === 'slots' && (
           <select
             value={query}
@@ -241,6 +243,9 @@ const ArmorSearch = () => {
         )}
       </div>
 
+      {/* Added more padding below the search bar */}
+      <div className="pb-8"></div>
+
       {loading ? (
         <div className="text-center">Loading...</div>
       ) : (
@@ -249,7 +254,7 @@ const ArmorSearch = () => {
             currentItems.map(piece => (
               <div
                 key={piece.id}
-                className="border p-2 rounded-lg cursor-pointer"
+                className="p-2 border rounded-lg cursor-pointer"
                 onClick={() => navigate(`/armor/${piece.id}`)} // Navigate to ArmorDetails on click
               >
                 <h2 className="text-lg font-bold">{piece.name}</h2>
@@ -274,17 +279,47 @@ const ArmorSearch = () => {
         </div>
       )}
 
-      <div className="flex justify-center mt-4">
-        {Array.from({ length: endPage - startPage + 1 }, (_, index) => (
-          <button
-            key={startPage + index}
-            onClick={() => paginate(startPage + index)}
-            className={`px-2 py-1 mx-1 border rounded ${currentPage === startPage + index ? 'bg-blue-500 text-white' : 'bg-white text-blue-500'}`}
-          >
-            {startPage + index}
-          </button>
-        ))}
-      </div>
+      {/* Pagination with Next and Previous Arrows */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center mt-4 space-x-2">
+  {/* Previous arrow */}
+  {currentPage > 1 && (
+    <button
+      onClick={() => paginate(currentPage - 1)}
+      className="px-3 py-2 bg-blue-500 text-white rounded"
+    >
+      &lt;
+    </button>
+  )}
+
+  {/* Page numbers */}
+  {Array.from({ length: totalPages }, (_, i) => i + 1)
+    .slice(startPage - 1, endPage)
+    .map(pageNumber => (
+      <button
+        key={pageNumber}
+        onClick={() => paginate(pageNumber)}
+        className={`px-3 py-2 ${
+          currentPage === pageNumber
+            ? 'bg-blue-700 text-white'
+            : 'bg-gray-200 text-black'
+        } rounded`}
+      >
+        {pageNumber}
+      </button>
+    ))}
+
+  {/* Next arrow */}
+  {currentPage < totalPages && (
+    <button
+      onClick={() => paginate(currentPage + 1)}
+      className="px-3 py-2 bg-blue-500 text-white rounded"
+    >
+      &gt;
+    </button>
+  )}
+</div>
+      )}
     </div>
   );
 };

@@ -11,9 +11,20 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1 {
   font-family: 'Times New Roman', Times, serif;
   font-weight: bold;
+  font-size: 3rem;  /* Makes h1 bigger */
+}
+
+h2 {
+  font-family: Arial, sans-serif;
+  font-weight: bold;  /* Applies bold font to h2 */
+}
+
+h3, h4, h5, h6 {
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: normal;
 }
 
 code {

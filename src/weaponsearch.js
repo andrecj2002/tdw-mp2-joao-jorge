@@ -31,7 +31,7 @@ const WeaponSearch = () => {
         // Extract unique values for filters
         const uniqueRarities = [...new Set(data.map(weapon => weapon.rarity))];
         const uniqueDamageTypes = [
-          ...new Set(data.map(weapon => weapon.damageType || 'No damage type')),
+          ...new Set(data.map(weapon => weapon.damageType || 'No damage type')) 
         ];
 
         // Extract unique elements from weapons data
@@ -74,6 +74,13 @@ const WeaponSearch = () => {
   const maxPageNumbers = 8;
   const startPage = Math.max(1, currentPage - Math.floor(maxPageNumbers / 2));
   const endPage = Math.min(totalPages, startPage + maxPageNumbers - 1);
+
+  // Handle click outside the modal to close it
+  const closeModal = (e) => {
+    if (e.target === e.currentTarget) {
+      setModalOpen(false);
+    }
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -227,22 +234,31 @@ const WeaponSearch = () => {
 
       {/* Modal for selecting weapon type */}
       {modalOpen && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div className="bg-white p-4 rounded-lg w-96">
+  <div
+    onClick={closeModal}
+    className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 transition-opacity duration-500 ease-in-out opacity-100"
+  >
+    <div
+      onClick={e => e.stopPropagation()} // Prevent click inside the modal from closing it
+      className="bg-white p-6 rounded-lg w-4/5 max-w-4xl transition-transform transform scale-105"
+    >
       <h2 className="text-xl font-bold mb-4">Select Weapon Type</h2>
 
       {/* Generate buttons for each unique weapon type */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {Array.from(new Set(weapons.map(weapon => weapon.type))) // Get unique weapon types
+        {Array.from(new Set(weapons.map(weapon => weapon.type)))
           .map((weaponType, index) => {
             // Construct the image path
             const imagePath = `/weapons/${weaponType.toLowerCase().replace(/ /g, '-')}.png`;
-            
+
             return (
               <button
                 key={index}
-                onClick={() => setSelectedWeaponType(weaponType)}
-                className="flex flex-col items-center p-2 border rounded-lg"
+                onClick={() => {
+                  setSelectedWeaponType(weaponType);
+                  setModalOpen(false); // Close modal on selection
+                }}
+                className="flex flex-col items-center p-2 border rounded-lg transform transition-all hover:scale-105" // Added hover effect
               >
                 {/* Display weapon image */}
                 <img
@@ -255,25 +271,9 @@ const WeaponSearch = () => {
             );
           })}
       </div>
-
-      <div className="flex justify-between mt-4">
-        <button
-          onClick={() => setModalOpen(false)}
-          className="px-4 py-2 bg-gray-300 rounded"
-        >
-          Close
-        </button>
-        <button
-          onClick={() => setModalOpen(false)}
-          className="px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Apply
-        </button>
-      </div>
     </div>
   </div>
 )}
-
     </div>
   );
 };

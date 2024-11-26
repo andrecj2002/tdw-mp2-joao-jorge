@@ -225,16 +225,29 @@ const MonsterSearch = () => {
               <p>No resistances available.</p>
             )}
 
-            <h3 className="text-xl font-semibold mt-4">Rewards:</h3>
-            {selectedMonster.rewards && selectedMonster.rewards.length > 0 ? (
-              <ul>
-                {selectedMonster.rewards.map((reward, index) => (
-                  <li key={index}>{reward.item.name}</li>
-                ))}
-              </ul>
-            ) : (
-              <p>No rewards available.</p>
-            )}
+{selectedMonster.rewards && selectedMonster.rewards.length > 0 ? (
+  <ul>
+    {selectedMonster.rewards.map((reward, index) => (
+      <li key={index}>
+        <strong>{reward.item.name}</strong>: 
+        {/* Display the rarity as stars */}
+        <span className="ml-2">
+          {Array.from({ length: reward.item.rarity }).map((_, i) => (
+            <img 
+              key={i} 
+              src="/icones/Star.svg"  // Path to the Star.svg image located in the public/icones folder
+              alt="star" 
+              className="inline-block w-4 h-4" 
+            />
+          ))}
+        </span>
+      </li>
+    ))}
+  </ul>
+) : (
+  <p>No rewards available.</p>
+)}
+
 
             <div className="mt-auto text-center">
               <button

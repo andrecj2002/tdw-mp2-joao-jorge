@@ -23,26 +23,45 @@ const WeaponSearch = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      try {
-        const response = await fetch('https://mhw-db.com/weapons');
-        const data = await response.json();
-        setWeapons(data);
 
-        // Extract unique values for filters
-        const uniqueRarities = [...new Set(data.map(weapon => weapon.rarity))];
-        const uniqueDamageTypes = [
-          ...new Set(data.map(weapon => weapon.damageType || 'No damage type'))
-        ];
-
-        setRarities(uniqueRarities);
-        setDamageTypes(uniqueDamageTypes);
-
+      // Check if weapons are already in localStorage
+      const cachedWeapons = localStorage.getItem('weapons');
+      if (cachedWeapons) {
+        const cachedData = JSON.parse(cachedWeapons);
+        setWeapons(cachedData.weapons);
+        setRarities(cachedData.rarities);
+        setDamageTypes(cachedData.damageTypes);
         setLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setLoading(false);
+      } else {
+        try {
+          const response = await fetch('https://mhw-db.com/weapons');
+          const data = await response.json();
+          setWeapons(data);
+
+          // Extract unique values for filters
+          const uniqueRarities = [...new Set(data.map(weapon => weapon.rarity))];
+          const uniqueDamageTypes = [
+            ...new Set(data.map(weapon => weapon.damageType || 'No damage type'))
+          ];
+
+          setRarities(uniqueRarities);
+          setDamageTypes(uniqueDamageTypes);
+
+          // Save the fetched data in localStorage for future use
+          localStorage.setItem('weapons', JSON.stringify({
+            weapons: data,
+            rarities: uniqueRarities,
+            damageTypes: uniqueDamageTypes,
+          }));
+
+          setLoading(false);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+          setLoading(false);
+        }
       }
     };
+
     fetchData();
   }, []);
 
@@ -186,7 +205,7 @@ const WeaponSearch = () => {
                 key={weapon.id}
                 className="p-2 border rounded-lg cursor-pointer"
                 onClick={() => navigate(`/weapon/${weapon.id}`)}
-                >
+              >
                 <h2 className="text-lg font-bold">{weapon.name}</h2>
                 <div className="flex justify-center items-center space-x-2">
                   <img

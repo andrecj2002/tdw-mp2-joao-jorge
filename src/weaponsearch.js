@@ -11,12 +11,12 @@ const WeaponSearch = () => {
   const [itemsPerPage] = useState(12);
   const [rarities, setRarities] = useState([]);
   const [damageTypes, setDamageTypes] = useState([]);
-  const [elements, setElements] = useState([]);
   const [filteredRarity, setFilteredRarity] = useState('');
   const [filteredDamageType, setFilteredDamageType] = useState('');
-  const [filteredElement, setFilteredElement] = useState('');
   const [selectedWeaponType, setSelectedWeaponType] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [sortBy, setSortBy] = useState(''); // New state for sorting
+  const [directCrafting, setDirectCrafting] = useState(false); // Toggle for direct crafting
 
   const navigate = useNavigate();
 
@@ -31,17 +31,11 @@ const WeaponSearch = () => {
         // Extract unique values for filters
         const uniqueRarities = [...new Set(data.map(weapon => weapon.rarity))];
         const uniqueDamageTypes = [
-          ...new Set(data.map(weapon => weapon.damageType || 'No damage type')) 
-        ];
-
-        // Extract unique elements from weapons data
-        const uniqueElements = [
-          ...new Set(data.flatMap(weapon => weapon.element ? [weapon.element] : [])),
+          ...new Set(data.map(weapon => weapon.damageType || 'No damage type'))
         ];
 
         setRarities(uniqueRarities);
         setDamageTypes(uniqueDamageTypes);
-        setElements(['', ...uniqueElements]); // Include empty string for 'No element'
 
         setLoading(false);
       } catch (error) {
@@ -57,20 +51,29 @@ const WeaponSearch = () => {
     const matchesName = searchType === 'name' ? weapon.name.toLowerCase().includes(query.toLowerCase()) : true;
     const matchesRarity = filteredRarity ? weapon.rarity === parseInt(filteredRarity) : true;
     const matchesDamageType = filteredDamageType ? weapon.damageType === filteredDamageType : true;
-    const matchesElement = filteredElement ? weapon.element === filteredElement : true;
-    const matchesWeaponType = selectedWeaponType ? weapon.type === selectedWeaponType : true; // Match weapon type filter
+    const matchesWeaponType = selectedWeaponType ? weapon.type === selectedWeaponType : true;
 
-    return matchesName && matchesRarity && matchesDamageType && matchesElement && matchesWeaponType;
+    return matchesName && matchesRarity && matchesDamageType && matchesWeaponType;
   });
 
-  // Paginate the filtered results
+  // Sort weapons based on selected criteria (damage or sharpness)
+  const sortedWeapons = filteredWeapons.sort((a, b) => {
+    if (sortBy === 'damage') {
+      return (b.attack?.damage || 0) - (a.attack?.damage || 0); // Compare based on damage
+    } else if (sortBy === 'sharpness') {
+      return (b.sharpness?.length || 0) - (a.sharpness?.length || 0); // Compare based on sharpness length
+    }
+    return 0;
+  });
+
+  // Paginate the sorted results
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredWeapons.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = sortedWeapons.slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = pageNumber => setCurrentPage(pageNumber);
 
-  const totalPages = Math.ceil(filteredWeapons.length / itemsPerPage);
+  const totalPages = Math.ceil(sortedWeapons.length / itemsPerPage);
   const maxPageNumbers = 8;
   const startPage = Math.max(1, currentPage - Math.floor(maxPageNumbers / 2));
   const endPage = Math.min(totalPages, startPage + maxPageNumbers - 1);
@@ -105,7 +108,17 @@ const WeaponSearch = () => {
           <option value="name">Name</option>
           <option value="rarity">Rarity</option>
           <option value="damageType">Damage Type</option>
-          <option value="element">Element</option>
+        </select>
+
+        {/* Sorting dropdown for damage or sharpness */}
+        <select
+          value={sortBy}
+          onChange={e => setSortBy(e.target.value)}
+          className="p-2 border border-gray-300 rounded-lg"
+        >
+          <option value="">Sort By</option>
+          <option value="damage">Damage</option>
+          <option value="sharpness">Sharpness</option>
         </select>
 
         {/* Button to open the modal */}
@@ -117,7 +130,20 @@ const WeaponSearch = () => {
         </button>
       </div>
 
-      {/* Filter dropdowns for rarity, damage type, and element */}
+      {/* Toggle for direct crafting */}
+      <div className="flex justify-center mb-4">
+        <label className="flex items-center space-x-2">
+          <span>Direct Crafting</span>
+          <input
+            type="checkbox"
+            checked={directCrafting}
+            onChange={() => setDirectCrafting(!directCrafting)}
+            className="toggle-checkbox"
+          />
+        </label>
+      </div>
+
+      {/* Filter dropdowns for rarity and damage type */}
       <div className="flex justify-center space-x-4 mb-4">
         {searchType === 'rarity' && (
           <select
@@ -148,21 +174,6 @@ const WeaponSearch = () => {
             ))}
           </select>
         )}
-
-        {searchType === 'element' && (
-          <select
-            value={filteredElement}
-            onChange={e => setFilteredElement(e.target.value)}
-            className="p-2 border border-gray-300 rounded-lg"
-          >
-            <option value="">Select Element</option>
-            {elements.map((element, index) => (
-              <option key={index} value={element}>
-                {element ? element.charAt(0).toUpperCase() + element.slice(1) : 'No Element'}
-              </option>
-            ))}
-          </select>
-        )}
       </div>
 
       {loading ? (
@@ -175,7 +186,7 @@ const WeaponSearch = () => {
                 key={weapon.id}
                 className="p-2 border rounded-lg cursor-pointer"
                 onClick={() => navigate(`/weapon/${weapon.id}`)}
-              >
+                >
                 <h2 className="text-lg font-bold">{weapon.name}</h2>
                 <div className="flex justify-center items-center space-x-2">
                   <img
@@ -234,46 +245,46 @@ const WeaponSearch = () => {
 
       {/* Modal for selecting weapon type */}
       {modalOpen && (
-  <div
-    onClick={closeModal}
-    className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 transition-opacity duration-500 ease-in-out opacity-100"
-  >
-    <div
-      onClick={e => e.stopPropagation()} // Prevent click inside the modal from closing it
-      className="bg-white p-6 rounded-lg w-4/5 max-w-4xl transition-transform transform scale-105"
-    >
-      <h2 className="text-xl font-bold mb-4">Select Weapon Type</h2>
+        <div
+          onClick={closeModal}
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 transition-opacity duration-500 ease-in-out opacity-100"
+        >
+          <div
+            onClick={e => e.stopPropagation()} // Prevent click inside the modal from closing it
+            className="bg-white p-6 rounded-lg w-4/5 max-w-4xl transition-transform transform scale-105"
+          >
+            <h2 className="text-xl font-bold mb-4">Select Weapon Type</h2>
 
-      {/* Generate buttons for each unique weapon type */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {Array.from(new Set(weapons.map(weapon => weapon.type)))
-          .map((weaponType, index) => {
-            // Construct the image path
-            const imagePath = `/weapons/${weaponType.toLowerCase().replace(/ /g, '-')}.png`;
+            {/* Generate buttons for each unique weapon type */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {Array.from(new Set(weapons.map(weapon => weapon.type)))
+                .map((weaponType, index) => {
+                  // Construct the image path
+                  const imagePath = `/weapons/${weaponType.toLowerCase().replace(/ /g, '-')}.png`;
 
-            return (
-              <button
-                key={index}
-                onClick={() => {
-                  setSelectedWeaponType(weaponType);
-                  setModalOpen(false); // Close modal on selection
-                }}
-                className="flex flex-col items-center p-2 border rounded-lg transform transition-all hover:scale-105" // Added hover effect
-              >
-                {/* Display weapon image */}
-                <img
-                  src={imagePath}
-                  alt={weaponType}
-                  className="w-16 h-16 object-contain mb-2"
-                />
-                <span className="text-sm font-bold">{weaponType}</span>
-              </button>
-            );
-          })}
-      </div>
-    </div>
-  </div>
-)}
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setSelectedWeaponType(weaponType);
+                        setModalOpen(false); // Close modal on selection
+                      }}
+                      className="flex flex-col items-center p-2 border rounded-lg transform transition-all hover:scale-105" // Added hover effect
+                    >
+                      {/* Display weapon image */}
+                      <img
+                        src={imagePath}
+                        alt={weaponType}
+                        className="w-16 h-16 object-contain mb-2"
+                      />
+                      <span className="text-sm font-bold">{weaponType}</span>
+                    </button>
+                  );
+                })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

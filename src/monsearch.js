@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 const MonsterSearch = () => {
   const [monsters, setMonsters] = useState([]);
   const [query, setQuery] = useState('');
-  const [searchType, setSearchType] = useState('locale');
+  const [searchType, setSearchType] = useState('name'); // Default to 'name' now
   const [loading, setLoading] = useState(true);
   const [filteredOptions, setFilteredOptions] = useState([]);
   const [allRewards, setAllRewards] = useState([]); // New state for all rewards
@@ -52,6 +52,8 @@ const MonsterSearch = () => {
         options = monsters.flatMap(monster => monster.ailments?.map(ail => ail.name) || []);
       } else if (searchType === 'resistance') {
         options = monsters.flatMap(monster => monster.resistances?.map(res => res.element) || []);
+      } else if (searchType === 'name') {
+        options = monsters.map(monster => monster.name); // Added option for monster names
       }
       setFilteredOptions([...new Set(options.filter(Boolean))]);
     }
@@ -75,6 +77,9 @@ const MonsterSearch = () => {
             condition.condition && condition.condition.toLowerCase().includes(query.toLowerCase())
         )
       );
+    }
+    if (searchType === 'name') {
+      return monster.name.toLowerCase().includes(query.toLowerCase());
     }
     return true;
   });
@@ -120,6 +125,7 @@ const MonsterSearch = () => {
           onChange={e => setSearchType(e.target.value)}
           className="p-2 border border-gray-300 rounded-lg"
         >
+          <option value="name">Monster Name</option> {/* First option for searching by name */}
           <option value="locale">Locale</option>
           <option value="aliment">Aliment</option>
           <option value="resistance">Resistance</option>
@@ -127,7 +133,7 @@ const MonsterSearch = () => {
         </select>
 
         {/* Filter dropdown */}
-        {searchType !== 'reward' && (
+        {searchType !== 'reward' && searchType !== 'name' && (
           <select
             value={query}
             onChange={e => setQuery(e.target.value)}
@@ -183,9 +189,7 @@ const MonsterSearch = () => {
           <button
             key={index}
             onClick={() => paginate(index + 1)}
-            className={`p-2 rounded ${
-              currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'
-            }`}
+            className={`p-2 rounded ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
           >
             {index + 1}
           </button>
@@ -198,15 +202,21 @@ const MonsterSearch = () => {
           className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-10"
           onClick={handleModalClick} // Close modal when clicked outside
         >
-          <div className="bg-white p-6 rounded-lg w-96 relative">
+          <div className="bg-white p-6 rounded-lg w-96 relative flex flex-col">
             <h2 className="text-2xl font-semibold">{selectedMonster.name}</h2>
             <p className="mt-2 text-gray-600">Description: {selectedMonster.description || 'No description available.'}</p> {/* Monster Description */}
             <p>Locale: {selectedMonster.locations?.map(loc => loc.name).join(', ') || 'Unknown'}</p>
+
             <h3 className="text-xl font-semibold mt-4">Resistances:</h3>
             {selectedMonster.resistances && selectedMonster.resistances.length > 0 ? (
-              <ul>
+              <ul className="flex flex-wrap">
                 {selectedMonster.resistances.map((resistance, index) => (
-                  <li key={index}>
+                  <li key={index} className="mr-4 mb-2 flex items-center">
+                    <img
+                      src={`/icones/Element_${resistance.element}_Icon.svg`}
+                      alt={resistance.element}
+                      className="w-6 h-6 mr-2"
+                    />
                     <strong>{resistance.element}</strong>: {resistance.value}
                   </li>
                 ))}
@@ -214,29 +224,26 @@ const MonsterSearch = () => {
             ) : (
               <p>No resistances available.</p>
             )}
+
             <h3 className="text-xl font-semibold mt-4">Rewards:</h3>
             {selectedMonster.rewards && selectedMonster.rewards.length > 0 ? (
               <ul>
                 {selectedMonster.rewards.map((reward, index) => (
-                  <li key={index}>
-                    <strong>{reward.item.name}</strong>: 
-                    {/* Display the rarity as stars */}
-                    <span className="ml-2">
-                      {Array.from({ length: reward.item.rarity }).map((_, i) => (
-                        <img key={i} src="/icones/Star.svg" alt="star" className="inline-block w-4 h-4" />
-                      ))}
-                    </span>
-                  </li>
+                  <li key={index}>{reward.item.name}</li>
                 ))}
               </ul>
             ) : (
-              <p>N/A</p>
+              <p>No rewards available.</p>
             )}
 
-            {/* Close button */}
-            <button onClick={closeModal} className="absolute top-4 right-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded mb-4">
-              Close
-            </button>
+            <div className="mt-auto text-center">
+              <button
+                onClick={closeModal}
+                className="bg-blue-500 text-white py-2 px-4 rounded-full mt-4"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

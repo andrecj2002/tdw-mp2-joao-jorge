@@ -6,7 +6,6 @@ const MonsterSearch = () => {
   const [searchType, setSearchType] = useState('name'); // Default to 'name'
   const [loading, setLoading] = useState(true);
   const [filteredOptions, setFilteredOptions] = useState([]);
-  const [allRewards, setAllRewards] = useState([]); // New state for all rewards
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(12);
   const [selectedMonster, setSelectedMonster] = useState(null); // State for selected monster
@@ -22,20 +21,6 @@ const MonsterSearch = () => {
         const response = await fetch('https://mhw-db.com/monsters');
         const data = await response.json();
         setMonsters(data);
-
-        // Collect all reward conditions from the API
-        const rewards = data.flatMap(monster => {
-          if (monster.rewards) {
-            return monster.rewards
-              .flatMap(reward => reward.conditions.map(condition => condition.condition))  // Extract conditions
-              .filter(Boolean); // Remove any undefined or falsy values
-          }
-          return [];
-        });
-
-        // Update the state with unique reward conditions
-        setAllRewards([...new Set(rewards)]);
-
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -72,14 +57,6 @@ const MonsterSearch = () => {
     }
     if (searchType === 'resistance') {
       return monster.resistances?.some(res => res.element.toLowerCase().includes(query.toLowerCase()));
-    }
-    if (searchType === 'reward') {
-      return monster.rewards?.some(reward =>
-        reward.conditions?.some(
-          condition =>
-            condition.condition && condition.condition.toLowerCase().includes(query.toLowerCase())
-        )
-      );
     }
     if (searchType === 'name') {
       return monster.name.toLowerCase().includes(query.toLowerCase());
@@ -122,7 +99,7 @@ const MonsterSearch = () => {
         <div className="relative w-1/2">
           <input
             type="text"
-            placeholder="Search for monsters or rewards..."
+            placeholder="Search for monsters..."
             value={query}
             onChange={e => {
               setQuery(e.target.value);
@@ -160,11 +137,10 @@ const MonsterSearch = () => {
           <option value="locale">Locale</option>
           <option value="aliment">Aliment</option>
           <option value="resistance">Resistance</option>
-          <option value="reward">Reward</option>
         </select>
 
         {/* Filter dropdown */}
-        {searchType !== 'reward' && searchType !== 'name' && (
+        {searchType !== 'name' && (
           <select
             value={query}
             onChange={e => setQuery(e.target.value)}
@@ -172,22 +148,6 @@ const MonsterSearch = () => {
           >
             <option value="">Select {searchType}</option>
             {filteredOptions.map(option => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        )}
-
-        {/* Rewards-specific dropdown */}
-        {searchType === 'reward' && (
-          <select
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            className="p-2 border border-gray-300 rounded-lg"
-          >
-            <option value="">Select Reward</option>
-            {allRewards.map(option => (
               <option key={option} value={option}>
                 {option}
               </option>
@@ -229,67 +189,67 @@ const MonsterSearch = () => {
 
       {/* Modal for displaying rewards and resistances */}
       {selectedMonster && (
-  <div
-    className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-10"
-    onClick={closeModal} // Close the modal when clicking outside
-  >
-    <div className="bg-white p-6 rounded-lg w-96 relative flex flex-col">
-      <h2 className="text-2xl font-semibold">{selectedMonster.name}</h2>
-      <p className="mt-2 text-gray-600">Description: {selectedMonster.description || 'No description available.'}</p>
-      <p>Locale: {selectedMonster.locations?.map(loc => loc.name).join(', ') || 'Unknown'}</p>
-
-      <h3 className="text-xl font-semibold mt-4">Resistances:</h3>
-      {selectedMonster.resistances && selectedMonster.resistances.length > 0 ? (
-        <ul className="flex flex-wrap">
-          {selectedMonster.resistances.map((resistance, index) => (
-            <li key={index} className="mr-4 mb-2 flex items-center">
-              <img
-                src={`/icones/Element_${resistance.element}_Icon.svg`}
-                alt={resistance.element}
-                className="w-6 h-6 mr-2"
-              />
-              <strong>{resistance.element}</strong>: {resistance.value}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No resistances available.</p>
-      )}
-
-      <h3 className="text-xl font-semibold mt-4">Rewards:</h3>
-      {selectedMonster.rewards && selectedMonster.rewards.length > 0 ? (
-        <ul>
-          {selectedMonster.rewards.map((reward, index) => (
-            <li key={index}>
-              <strong>{reward.item.name}</strong>:
-              <span className="ml-2">
-                {Array.from({ length: reward.item.rarity }).map((_, i) => (
-                  <img
-                    key={i}
-                    src="/icones/Star.svg"
-                    alt="star"
-                    className="inline-block w-4 h-4"
-                  />
-                ))}
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No rewards available.</p>
-      )}
-
-      <div className="mt-auto text-center">
-        <button
-          onClick={closeModal}
-          className="bg-blue-500 text-white py-2 px-4 rounded-full mt-4"
+        <div
+          className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-10"
+          onClick={closeModal} // Close the modal when clicking outside
         >
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+          <div className="bg-white p-6 rounded-lg w-96 relative flex flex-col">
+            <h2 className="text-2xl font-semibold">{selectedMonster.name}</h2>
+            <p className="mt-2 text-gray-600">Description: {selectedMonster.description || 'No description available.'}</p>
+            <p>Locale: {selectedMonster.locations?.map(loc => loc.name).join(', ') || 'Unknown'}</p>
+
+            <h3 className="text-xl font-semibold mt-4">Resistances:</h3>
+            {selectedMonster.resistances && selectedMonster.resistances.length > 0 ? (
+              <ul className="flex flex-wrap">
+                {selectedMonster.resistances.map((resistance, index) => (
+                  <li key={index} className="mr-4 mb-2 flex items-center">
+                    <img
+                      src={`/icones/Element_${resistance.element}_Icon.svg`}
+                      alt={resistance.element}
+                      className="w-6 h-6 mr-2"
+                    />
+                    <strong>{resistance.element}</strong>: {resistance.value}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No resistances available.</p>
+            )}
+
+            <h3 className="text-xl font-semibold mt-4">Rewards:</h3>
+            {selectedMonster.rewards && selectedMonster.rewards.length > 0 ? (
+              <ul>
+                {selectedMonster.rewards.map((reward, index) => (
+                  <li key={index}>
+                    <strong>{reward.item.name}</strong>:
+                    <span className="ml-2">
+                      {Array.from({ length: reward.item.rarity }).map((_, i) => (
+                        <img
+                          key={i}
+                          src="/icones/Star.svg"
+                          alt="star"
+                          className="inline-block w-4 h-4"
+                        />
+                      ))}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No rewards available.</p>
+            )}
+
+            <div className="mt-auto text-center">
+              <button
+                onClick={closeModal}
+                className="bg-blue-500 text-white py-2 px-4 rounded-full mt-4"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

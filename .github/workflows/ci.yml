@@ -63,11 +63,8 @@ jobs:
         with:
           node-version: "18"
 
-      - name: Install dependencies
-        run: npm install
-
       - name: Vercel Deployment
-        uses: vercel/action@v2
+        uses: vercel/vercel-action@v23  
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}  
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}  

@@ -1,4 +1,4 @@
-name: Pipeline Geral
+name: pipeline_TDW-02
 
 on:
   push:
@@ -9,37 +9,16 @@ on:
       - "**"
 
 jobs:
-  install-dependencies:
-    name: Install Dependencies
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18"
-
-      - name: Clear npm cache
-        run: npm cache clean --force
-
-      - name: Install dependencies
-        run: npm install
-
   check-mhw-api:
     name: Check MHW API
     runs-on: ubuntu-latest
-    needs: install-dependencies
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
-
       - name: Check MHW API Status
         run: |
           response=$(curl -s -o /dev/null -w "%{http_code}" https://mhw-db.com/armor)
@@ -50,24 +29,117 @@ jobs:
             exit 1
           fi
 
-  deploy-to-vercel:
-    name: Deploy to Vercel
+  install-dependencies:
+    name: Install Dependencies
     runs-on: ubuntu-latest
     needs: check-mhw-api
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
-
-      - name: Vercel Deployment
-        uses: vercel/vercel-action@v23  
+      - name: Clear npm cache
+        run: npm cache clean --force
+      - name: Cache node modules
+        uses: actions/cache@v3
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}  
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}  
-          vercel-args: '--prod' 
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-
+      - name: Install dependencies
+        run: npm install
+      - name: Install react-scripts
+        run: npm install react-scripts
+      - name: Verify react-scripts installation
+        run: npm ls react-scripts
+
+  run-tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: install-dependencies
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+      - name: Restore node modules cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-
+      - name: Verify react-scripts installation
+        run: npm ls react-scripts
+      - name: Run tests
+        run: npm test
+
+  build-project:
+    name: Build Project
+    runs-on: ubuntu-latest
+    needs: run-tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+      - name: Restore node modules cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-
+      - name: Build React project
+        run: npm run build
+
+  format-code:
+    name: Format Code
+    runs-on: ubuntu-latest
+    needs: build-project
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+      - name: Restore node modules cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-
+      - name: Install Prettier
+        run: npm install prettier
+      - name: Run Prettier
+        run: npx prettier --write .
+
+  deploy-vercel:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    needs: format-code
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+      - name: Restore node modules cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-
+      - name: Deploy to Vercel
+        run: npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm --cwd .

@@ -42,21 +42,10 @@ jobs:
           node-version: "18"
       - name: Clear npm cache
         run: npm cache clean --force
-      - name: Cache node modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node_modules-
+      - name: Remove node_modules
+        run: rm -rf node_modules
       - name: Install dependencies
         run: npm install
-      - name: Install react-scripts
-        run: npm install react-scripts
-      - name: Install react-router-dom
-        run: npm install react-router-dom
-      - name: Install Babel plugin
-        run: npm install @babel/plugin-proposal-private-property-in-object
       - name: Verify react-scripts installation
         run: npm ls react-scripts
 
@@ -71,15 +60,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "18"
-      - name: Restore node modules cache
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node_modules-
-      - name: Verify react-scripts installation
-        run: npm ls react-scripts
       - name: Run tests
         run: npm test
 
@@ -94,13 +74,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "18"
-      - name: Restore node modules cache
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node_modules-
       - name: Build React project
         run: npm run build
 
@@ -115,13 +88,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "18"
-      - name: Restore node modules cache
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node_modules-
       - name: Install Prettier
         run: npm install prettier
       - name: Run Prettier
@@ -138,12 +104,5 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "18"
-      - name: Restore node modules cache
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node_modules-
       - name: Deploy to Vercel
-        run: npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm --cwd .
+        run: npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm --cwd 

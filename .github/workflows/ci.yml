@@ -58,6 +58,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "18"
+      - name: Verify react-scripts installation
+        run: npm ls react-scripts
       - name: Run tests
         run: npm test
 
@@ -68,12 +70,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
-
       - name: Build React project
         run: npm run build
 
@@ -84,15 +84,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
-
       - name: Install Prettier
         run: npm install prettier
-
       - name: Run Prettier
         run: npx prettier --write .
 
@@ -103,11 +100,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
-
       - name: Deploy to Vercel
-        run: npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm --cwd .
+        run: npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm --cwd 

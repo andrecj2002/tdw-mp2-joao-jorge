@@ -46,7 +46,6 @@ const ArmorDetails = () => {
   // Check if resistances, skills, and decorations exist to prevent errors
   const resistances = armor.resistances || {};
   const skills = armor.skills || [];
-  const decorations = armor.decorations || [];
 
   const handleBackClick = () => {
     navigate(-1);  // Go back to the previous page

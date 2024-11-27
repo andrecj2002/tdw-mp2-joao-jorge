@@ -76,14 +76,20 @@ const WeaponSearch = () => {
   });
 
   // Sort weapons based on selected criteria (damage or sharpness)
-  const sortedWeapons = filteredWeapons.sort((a, b) => {
-    if (sortBy === 'damage') {
-      return (b.attack?.damage || 0) - (a.attack?.damage || 0); // Compare based on damage
-    } else if (sortBy === 'sharpness') {
-      return (b.sharpness?.length || 0) - (a.sharpness?.length || 0); // Compare based on sharpness length
-    }
-    return 0;
-  });
+// Sort weapons based on selected criteria (damage or sharpness)
+const sortedWeapons = filteredWeapons.sort((a, b) => {
+  if (sortBy === 'damage') {
+    const damageA = a.attack?.damage || 0; // Default to 0 if undefined
+    const damageB = b.attack?.damage || 0; // Default to 0 if undefined
+    return damageB - damageA; // Compare based on damage (descending)
+  } else if (sortBy === 'sharpness') {
+    const sharpnessA = a.sharpness?.length || 0; // Default to 0 if undefined
+    const sharpnessB = b.sharpness?.length || 0; // Default to 0 if undefined
+    return sharpnessB - sharpnessA; // Compare based on sharpness length (descending)
+  }
+  return 0; // No sorting if neither damage nor sharpness is selected
+});
+
 
   // Paginate the sorted results
   const indexOfLastItem = currentPage * itemsPerPage;

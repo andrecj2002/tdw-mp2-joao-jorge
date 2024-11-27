@@ -44,6 +44,8 @@ jobs:
         run: npm cache clean --force
       - name: Install dependencies
         run: npm install
+      - name: Verify react-scripts installation
+        run: npm ls react-scripts
 
   run-tests:
     name: Run Tests

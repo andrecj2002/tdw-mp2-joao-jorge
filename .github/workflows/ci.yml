@@ -22,7 +22,7 @@ jobs:
       - name: Check MHW API Status
         run: |
           response=$(curl -s -o /dev/null -w "%{http_code}" https://mhw-db.com/armor)
-          if [ "$response" -eq 200]; then
+          if [ "$response" -eq 200 ]; then
             echo "MHW API is reachable."
           else
             echo "Failed to reach MHW API. Status code: $response"

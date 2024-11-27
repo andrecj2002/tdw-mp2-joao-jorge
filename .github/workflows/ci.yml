@@ -9,24 +9,32 @@ on:
       - "**"
 
 jobs:
-  check-api-status:
-    name: Check MHW API Status
+  check-mhw-api:
+    name: Check MHW API
     runs-on: ubuntu-latest
     steps:
-      - name: Verify API Status
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Check MHW API Status
         run: |
-          STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}" https://api.example.com/mhw)
-          if [ "$STATUS_CODE" -ne 200 ]; then
-            echo "MHW API is down. Status code: $STATUS_CODE"
-            exit 1
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://mhw-db.com/armor)
+          if [ "$response" -eq 200 ]; then
+            echo "MHW API is reachable."
           else
-            echo "MHW API is up. Status code: $STATUS_CODE"
+            echo "Failed to reach MHW API. Status code: $response"
+            exit 1
           fi
 
   install-dependencies:
     name: Install Dependencies
     runs-on: ubuntu-latest
-    needs: check-api-status
+    needs: check-mhw-api
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -62,7 +70,6 @@ jobs:
     name: Build Project
     runs-on: ubuntu-latest
     needs: run-tests
-    if: success()
     steps:
       - name: Checkout code
         uses: actions/checkout@v3

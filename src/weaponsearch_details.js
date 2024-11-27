@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { useParams, useNavigate } from 'react-router-dom';
 import semImagem from './media/no-image-svgrepo-com.svg';
 
@@ -8,6 +8,8 @@ const WeaponDetails = () => {
   const [weapon, setWeapon] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentLevel, setCurrentLevel] = useState(0); // Track the current level
+  const [decorations, setDecorations] = useState([]); // Store decorations data
+  const [elements, setElements] = useState([]); // Store elements data
 
   useEffect(() => {
     const fetchWeaponDetails = async () => {
@@ -16,6 +18,8 @@ const WeaponDetails = () => {
         const response = await fetch(`https://mhw-db.com/weapons/${id}`);
         const data = await response.json();
         setWeapon(data);
+        setDecorations(data.decorations || []);  // Pull decorations from API
+        setElements(data.elements || []);        // Pull elements from API
         setLoading(false);
       } catch (error) {
         console.error('Error fetching weapon details:', error);
@@ -33,9 +37,6 @@ const WeaponDetails = () => {
     return <p>No weapon details found.</p>;
   }
 
-  // Log the sharpness data for debugging purposes
-  console.log('Durability data:', weapon.durability);
-
   // Function to render sharpness levels as a multi-colored bar (one level at a time)
   const renderSharpnessBar = (sharpness) => {
     if (!sharpness) return null;
@@ -51,7 +52,7 @@ const WeaponDetails = () => {
     };
 
     return (
-      <div style={{ width: '50%', height: '10px', display: 'flex' }}>
+      <div style={{ width: '50%', height: '10px', display: 'flex', margin: '0 auto' }}>
         {Object.entries(sharpness).map(([color, value]) => {
           if (value > 0) {
             return (
@@ -73,9 +74,8 @@ const WeaponDetails = () => {
 
   // Extracting weapon attributes like slots, elements, and durability
   const slots = weapon.slots || [];
-  const elements = weapon.elements || [];
   const durability = weapon.durability || [];
-  const attributes = weapon.attributes || [];
+  const attributes = weapon.attributes || {};
 
   const handleBackClick = () => {
     navigate(-1); // Go back to the previous page
@@ -83,6 +83,13 @@ const WeaponDetails = () => {
 
   const handleLevelChange = (event) => {
     setCurrentLevel(parseInt(event.target.value)); // Update current level based on dropdown
+  };
+
+  // Function to get the element icon path
+  const getElementIcon = (elementType) => {
+    // Construct the icon filename based on element type
+    const elementName = elementType.charAt(0).toUpperCase() + elementType.slice(1); // Capitalize the first letter
+    return `/icones/Element_${elementName}_Icon.svg`; // Assuming icons are stored in public/icones/
   };
 
   return (
@@ -107,7 +114,7 @@ const WeaponDetails = () => {
 
       {/* Sharpness Bar with Title */}
       <div className="sharpness-bar-container mb-6">
-        <h3 className="font-bold text-lg mb-2">Sharpness</h3>
+        <h2 className="font-bold text-lg mb-2">Sharpness</h2> {/* Change to h2 */}
         <div className="sharpness-bar" style={{ width: '100%' }}>
           {renderSharpnessBar(durability[currentLevel])}
         </div>
@@ -129,32 +136,33 @@ const WeaponDetails = () => {
         </div>
       </div>
 
-      <div className="relative overflow-x-auto max-w-2xl mx-auto">
+      {/* Table with increased size */}
+      <div className="relative overflow-x-auto max-w-4xl mx-auto">
         <table className="w-full text-xs text-left rtl:text-right text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
-              <th scope="col" className="px-4 py-2">Attribute</th>
-              <th scope="col" className="px-4 py-2">Value</th>
+              <th scope="col" className="px-6 py-4">Attribute</th>
+              <th scope="col" className="px-6 py-4">Value</th>
             </tr>
           </thead>
           <tbody>
             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-              <th scope="row" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+              <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                 Weapon Type
               </th>
-              <td className="px-4 py-2">{weapon.type}</td>
+              <td className="px-6 py-4">{weapon.type}</td>
             </tr>
             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-              <th scope="row" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+              <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                 Rarity
               </th>
-              <td className="px-4 py-2">{weapon.rarity}</td>
+              <td className="px-6 py-4">{weapon.rarity}</td>
             </tr>
             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-              <th scope="row" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+              <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                 Attack
               </th>
-              <td className="px-4 py-2">
+              <td className="px-6 py-4">
                 {weapon.attack ? (
                   <>
                     <p>Base: {weapon.attack.base}</p>
@@ -166,10 +174,10 @@ const WeaponDetails = () => {
               </td>
             </tr>
             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-              <th scope="row" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+              <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                 Slots
               </th>
-              <td className="px-4 py-2">
+              <td className="px-6 py-4">
                 {slots.length > 0 ? (
                   <ul>
                     {slots.map((slot, index) => (
@@ -184,21 +192,60 @@ const WeaponDetails = () => {
               </td>
             </tr>
 
-            {attributes.affinity && (
+            {/* Display Affinity */}
+            {attributes.affinity !== undefined && (
               <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                   Affinity
                 </th>
-                <td className="px-4 py-2">{attributes.affinity}%</td>
+                <td className="px-6 py-4">{attributes.affinity}%</td>
               </tr>
             )}
 
-            {attributes.defense && (
+            {/* Display Defense */}
+            {attributes.defense !== undefined && (
               <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                   Defense
                 </th>
-                <td className="px-4 py-2">{attributes.defense}</td>
+                <td className="px-6 py-4">{attributes.defense}</td>
+              </tr>
+            )}
+
+            {/* Display Decorations */}
+            {decorations.length > 0 && (
+              <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                  Decorations
+                </th>
+                <td className="px-6 py-4">
+                  <ul>
+                    {decorations.map((decoration, index) => (
+                      <li key={index}>{decoration.name}</li>
+                    ))}
+                  </ul>
+                </td>
+              </tr>
+            )}
+
+            {/* Display Elements */}
+            {elements.length > 0 && (
+              <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                  Elements
+                </th>
+                <td className="px-6 py-4">
+                  {elements.map((element, index) => (
+                    <div key={index} className="flex items-center">
+                      <img
+                        src={getElementIcon(element.type)}
+                        alt={element.type}
+                        className="w-6 h-6 mr-2"
+                      />
+                      <p>{element.type}</p>
+                    </div>
+                  ))}
+                </td>
               </tr>
             )}
           </tbody>

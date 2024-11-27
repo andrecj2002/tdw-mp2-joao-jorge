@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import the useNavigate hook
+import { useNavigate } from 'react-router-dom'; 
 import semImagem from './media/no-image-svgrepo-com.svg';
 
 const ArmorSearch = () => {
@@ -12,11 +12,11 @@ const ArmorSearch = () => {
   const [itemsPerPage] = useState(12);
   const [filteredSkills, setFilteredSkills] = useState([]);
   const [filteredNames, setFilteredNames] = useState([]);
-  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false); // Track suggestions box state
+  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false); 
 
-  const suggestionsRef = useRef(null); // Reference for suggestions box
-  const inputRef = useRef(null); // Reference for the input field
-  const navigate = useNavigate(); // Initialize useNavigate hook
+  const suggestionsRef = useRef(null); 
+  const inputRef = useRef(null); 
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,29 +45,27 @@ const ArmorSearch = () => {
     fetchData();
   }, []);
 
-  // Filter skills based on query for suggestions
   useEffect(() => {
     if (searchType === 'skills') {
       setFilteredSkills(
         skills.filter(skill =>
           skill.name.toLowerCase().includes(query.toLowerCase())
-        ).slice(0, 5) // Limit suggestions to 5
+        ).slice(0, 5) // Limita a 5
       );
     }
   }, [query, searchType, skills]);
 
-  // Filter armor names based on query for suggestions
+  // Filtro de Armaduras
   useEffect(() => {
     if (searchType === 'name') {
       setFilteredNames(
         armor.filter(piece =>
           piece.name.toLowerCase().includes(query.toLowerCase())
-        ).slice(0, 5) // Limit suggestions to 5
+        ).slice(0, 5) // Limita a 5
       );
     }
   }, [query, searchType, armor]);
 
-  // Reset page and query when searchType changes
   useEffect(() => {
     setQuery('');
     setCurrentPage(1);
@@ -103,7 +101,7 @@ const ArmorSearch = () => {
   const startPage = Math.max(1, currentPage - Math.floor(maxPageNumbers / 2));
   const endPage = Math.min(totalPages, startPage + maxPageNumbers - 1);
 
-  // Close suggestions if clicked outside
+  // Fecha Sugestões ao clicar whereverf
   const handleClickOutside = (e) => {
     if (suggestionsRef.current && !suggestionsRef.current.contains(e.target)) {
       setIsSuggestionsOpen(false);
@@ -121,7 +119,7 @@ const ArmorSearch = () => {
       <h1 className="text-4xl font-bold text-center mb-4">Search for Armor</h1>
 
       <div className="flex justify-center items-center mb-4 space-x-4">
-        {/* Search input and select */}
+        {/* Procurar Inputs */}
         <div className="relative w-1/2">
           <input
             type="text"
@@ -129,13 +127,13 @@ const ArmorSearch = () => {
             value={query}
             onChange={e => {
               setQuery(e.target.value);
-              setIsSuggestionsOpen(true);  // Open suggestions when user types
+              setIsSuggestionsOpen(true);  // Sugestões dinamicas
             }}
             ref={inputRef}
             className="p-2 border border-gray-300 rounded-lg w-full"
           />
 
-          {/* Name and Skill Suggestions */}
+          {/* Sugestões de nomes e skills */}
           {searchType === 'name' && query && isSuggestionsOpen && (
             <ul className="absolute bg-white border w-full max-h-48 overflow-auto mt-1" ref={suggestionsRef}>
               {filteredNames.map(piece => (
@@ -144,7 +142,7 @@ const ArmorSearch = () => {
                   className="p-2 cursor-pointer hover:bg-gray-200"
                   onClick={() => {
                     setQuery(piece.name);
-                    setIsSuggestionsOpen(false); // Close suggestions on selection
+                    setIsSuggestionsOpen(false); 
                   }}
                 >
                   {piece.name}
@@ -161,7 +159,7 @@ const ArmorSearch = () => {
                   className="p-2 cursor-pointer hover:bg-gray-200"
                   onClick={() => {
                     setQuery(skill.name || skill.skillName);
-                    setIsSuggestionsOpen(false); // Close suggestions on selection
+                    setIsSuggestionsOpen(false); 
                   }}
                 >
                   {skill.name || skill.skillName}
@@ -171,7 +169,7 @@ const ArmorSearch = () => {
           )}
         </div>
 
-        {/* Search Type Dropdown */}
+        {/* Tipos de Filtros */}
         <select
           value={searchType}
           onChange={e => setSearchType(e.target.value)}
@@ -185,7 +183,7 @@ const ArmorSearch = () => {
         </select>
       </div>
 
-      {/* Filter Dropdowns Based on Search Type */}
+      {/* Pull da API para os filtros */}
       <div className="flex justify-center space-x-4 mb-4">
         {searchType === 'skills' && (
           <select
@@ -243,7 +241,6 @@ const ArmorSearch = () => {
         )}
       </div>
 
-      {/* Added more padding below the search bar */}
       <div className="pb-8"></div>
 
       {loading ? (
@@ -255,7 +252,7 @@ const ArmorSearch = () => {
               <div
                 key={piece.id}
                 className="p-2 border rounded-lg cursor-pointer"
-                onClick={() => navigate(`/armor/${piece.id}`)} // Navigate to ArmorDetails on click
+                onClick={() => navigate(`/armor/${piece.id}`)} 
               >
                 <h2 className="text-lg font-bold">{piece.name}</h2>
                 <div className="flex justify-center items-center space-x-2">
@@ -279,10 +276,9 @@ const ArmorSearch = () => {
         </div>
       )}
 
-      {/* Pagination with Next and Previous Arrows */}
+      {/* Paginaçao */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center mt-4 space-x-2">
-  {/* Previous arrow */}
   {currentPage > 1 && (
     <button
       onClick={() => paginate(currentPage - 1)}
@@ -292,7 +288,6 @@ const ArmorSearch = () => {
     </button>
   )}
 
-  {/* Page numbers */}
   {Array.from({ length: totalPages }, (_, i) => i + 1)
     .slice(startPage - 1, endPage)
     .map(pageNumber => (
@@ -309,7 +304,6 @@ const ArmorSearch = () => {
       </button>
     ))}
 
-  {/* Next arrow */}
   {currentPage < totalPages && (
     <button
       onClick={() => paginate(currentPage + 1)}

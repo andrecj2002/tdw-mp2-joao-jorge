@@ -8,7 +8,6 @@ const WeaponDetails = () => {
   const [weapon, setWeapon] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentLevel, setCurrentLevel] = useState(0); // Track the current level
-  const [decorations, setDecorations] = useState([]); // Store decorations data
   const [elements, setElements] = useState([]); // Store elements data
 
   useEffect(() => {
@@ -18,7 +17,6 @@ const WeaponDetails = () => {
         const response = await fetch(`https://mhw-db.com/weapons/${id}`);
         const data = await response.json();
         setWeapon(data);
-        setDecorations(data.decorations || []);  // Pull decorations from API
         setElements(data.elements || []);        // Pull elements from API
         setLoading(false);
       } catch (error) {
@@ -37,7 +35,7 @@ const WeaponDetails = () => {
     return <p>No weapon details found.</p>;
   }
 
-  // Function to render sharpness levels as a multi-colored bar (one level at a time)
+  // Renderizar Sharpness 
   const renderSharpnessBar = (sharpness) => {
     if (!sharpness) return null;
 
@@ -75,7 +73,6 @@ const WeaponDetails = () => {
   // Extracting weapon attributes like slots, elements, and durability
   const slots = weapon.slots || [];
   const durability = weapon.durability || [];
-  const attributes = weapon.attributes || {};
 
   const handleBackClick = () => {
     navigate(-1); // Go back to the previous page
@@ -87,7 +84,6 @@ const WeaponDetails = () => {
 
   // Function to get the element icon path
   const getElementIcon = (elementType) => {
-    // Construct the icon filename based on element type
     const elementName = elementType.charAt(0).toUpperCase() + elementType.slice(1); // Capitalize the first letter
     return `/icones/Element_${elementName}_Icon.svg`; // Assuming icons are stored in public/icones/
   };
@@ -114,11 +110,10 @@ const WeaponDetails = () => {
 
       {/* Sharpness Bar with Title */}
       <div className="sharpness-bar-container mb-6">
-        <h2 className="font-bold text-lg mb-2">Sharpness</h2> {/* Change to h2 */}
+<h2 className="font-bold text-lg mb-2 ml-4">Sharpness</h2> 
         <div className="sharpness-bar" style={{ width: '100%' }}>
           {renderSharpnessBar(durability[currentLevel])}
         </div>
-        {/* Dropdown for selecting sharpness level */}
         <div className="mt-4">
           <label htmlFor="sharpness-level" className="mr-2 font-medium">Select Sharpness Level</label>
           <select
@@ -173,6 +168,20 @@ const WeaponDetails = () => {
                 )}
               </td>
             </tr>
+            {/* Add Affinity Row */}
+            <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+              <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                Affinity
+              </th>
+              <td className="px-6 py-4">{weapon.attributes?.affinity !== undefined ? `${weapon.attributes.affinity}%` : 'N/A'}</td>
+            </tr>
+            {/* Add Defense Row */}
+            <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+              <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                Defense
+              </th>
+              <td className="px-6 py-4">{weapon.attributes?.defense !== undefined ? weapon.attributes.defense : 'N/A'}</td>
+            </tr>
             <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
               <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                 Slots
@@ -182,7 +191,7 @@ const WeaponDetails = () => {
                   <ul>
                     {slots.map((slot, index) => (
                       <li key={index}>
-                        {slot.size} Slot
+                        {slot.size} Slot - Rank {slot.rank}
                       </li>
                     ))}
                   </ul>
@@ -192,47 +201,36 @@ const WeaponDetails = () => {
               </td>
             </tr>
 
-            {/* Display Affinity */}
-            {attributes.affinity !== undefined && (
+            {/* Phial Field */}
+            {weapon.phial && (
               <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                 <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                  Affinity
-                </th>
-                <td className="px-6 py-4">{attributes.affinity}%</td>
-              </tr>
-            )}
-
-            {/* Display Defense */}
-            {attributes.defense !== undefined && (
-              <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                  Defense
-                </th>
-                <td className="px-6 py-4">{attributes.defense}</td>
-              </tr>
-            )}
-
-            {/* Display Decorations */}
-            {decorations.length > 0 && (
-              <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                  Decorations
+                  Phial Type
                 </th>
                 <td className="px-6 py-4">
-                  <ul>
-                    {decorations.map((decoration, index) => (
-                      <li key={index}>{decoration.name}</li>
-                    ))}
-                  </ul>
+                  {weapon.phial.type}
+                  {weapon.phial.damage !== null && (
+                    <p>Damage: {weapon.phial.damage}</p>
+                  )}
                 </td>
               </tr>
             )}
 
-            {/* Display Elements */}
+            {/* Shelling Field */}
+            {weapon.shelling && (
+              <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                  Shelling Type
+                </th>
+                <td className="px-6 py-4">{weapon.shelling.type}</td>
+              </tr>
+            )}
+
+            {/* Elemental Info */}
             {elements.length > 0 && (
               <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                 <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                  Elements
+                  Element
                 </th>
                 <td className="px-6 py-4">
                   {elements.map((element, index) => (
@@ -240,9 +238,9 @@ const WeaponDetails = () => {
                       <img
                         src={getElementIcon(element.type)}
                         alt={element.type}
-                        className="w-6 h-6 mr-2"
+                        className="w-5 h-5 mr-2"
                       />
-                      <p>{element.type}</p>
+                      {element.damage > 0 ? `${element.damage} ${element.type}` : ''}
                     </div>
                   ))}
                 </td>

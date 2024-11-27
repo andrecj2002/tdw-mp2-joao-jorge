@@ -29,24 +29,27 @@ jobs:
             exit 1
           fi
 
-  install-dependencies:
-    name: Install Dependencies
-    runs-on: ubuntu-latest
-    needs: check-mhw-api
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18"
-      - name: Clear npm cache
-        run: npm cache clean --force
-      - name: Install dependencies
-        run: npm install
-      - name: Verify react-scripts installation
-        run: npm ls react-scripts
+install-dependencies:
+  name: Install Dependencies
+  runs-on: ubuntu-latest
+  needs: check-mhw-api
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: "18"
+    - name: Clear npm cache
+      run: npm cache clean --force
+    - name: Install dependencies
+      run: npm install
+    - name: Install react-scripts
+      run: npm install react-scripts
+    - name: Verify react-scripts installation
+      run: npm ls react-scriptsº
 
+      
   run-tests:
     name: Run Tests
     runs-on: ubuntu-latest

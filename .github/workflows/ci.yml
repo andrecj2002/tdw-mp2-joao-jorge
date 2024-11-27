@@ -50,21 +50,24 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-  run-tests:
-    name: Run Tests
-    runs-on: ubuntu-latest
-    needs: install-dependencies
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+        run-tests:
+          name: Run Tests
+          runs-on: ubuntu-latest
+          needs: install-dependencies
+          steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18"
+            - name: Set up Node.js
+              uses: actions/setup-node@v3
+              with:
+                node-version: "18"
 
-      - name: Run tests
-        run: npm test
+            - name: Install Dependencies (if missing)
+              run: npm ci
+
+            - name: Run tests
+              run: npm test
 
   build-project:
     name: Build Project

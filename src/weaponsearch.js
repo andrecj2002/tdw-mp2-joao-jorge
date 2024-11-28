@@ -71,23 +71,26 @@ const WeaponSearch = () => {
     const matchesRarity = filteredRarity ? weapon.rarity === parseInt(filteredRarity) : true;
     const matchesDamageType = filteredDamageType ? weapon.damageType === filteredDamageType : true;
     const matchesWeaponType = selectedWeaponType ? weapon.type === selectedWeaponType : true;
+    const matchesDirectCrafting = directCrafting ? weapon.crafting?.craftable === true : true;
 
-    return matchesName && matchesRarity && matchesDamageType && matchesWeaponType;
+    return matchesName && matchesRarity && matchesDamageType && matchesWeaponType && matchesDirectCrafting;
   });
 
+  const calculateSharpness = (durability) => {
+    return durability?.reduce((sum, level) => sum + Object.values(level).reduce((a, b) => a + b, 0), 0) || 0;
+  };
+
   // Sort weapons based on selected criteria (damage or sharpness)
-// Sort weapons based on selected criteria (damage or sharpness)
 const sortedWeapons = filteredWeapons.sort((a, b) => {
   if (sortBy === 'damage') {
-    const damageA = a.attack?.damage || 0; // Default to 0 if undefined
-    const damageB = b.attack?.damage || 0; // Default to 0 if undefined
-    return damageB - damageA; // Compare based on damage (descending)
-  } else if (sortBy === 'sharpness') {
-    const sharpnessA = a.sharpness?.length || 0; // Default to 0 if undefined
-    const sharpnessB = b.sharpness?.length || 0; // Default to 0 if undefined
-    return sharpnessB - sharpnessA; // Compare based on sharpness length (descending)
+    const damageA = a.attack?.raw || 0; 
+    const damageB = b.attack?.raw || 0;
+    return damageA - damageB; 
   }
-  return 0; // No sorting if neither damage nor sharpness is selected
+  else if (sortBy === 'sharpness') {
+      return calculateSharpness(a.durability) - calculateSharpness(b.durability);
+    }
+  return 0;
 });
 
 
@@ -157,15 +160,15 @@ const sortedWeapons = filteredWeapons.sort((a, b) => {
 
       {/* Toggle for direct crafting */}
       <div className="flex justify-center mb-4">
-        <label className="flex items-center space-x-2">
-          <span>Direct Crafting</span>
-          <input
-            type="checkbox"
-            checked={directCrafting}
-            onChange={() => setDirectCrafting(!directCrafting)}
-            className="toggle-checkbox"
-          />
-        </label>
+      <label className="flex items-center space-x-2">
+  <span>Direct Crafting</span>
+  <input
+    type="checkbox"
+    checked={directCrafting}
+    onChange={() => setDirectCrafting(!directCrafting)}
+    className="toggle-checkbox"
+  />
+</label>
       </div>
 
       {/* Filter dropdowns for rarity and damage type */}

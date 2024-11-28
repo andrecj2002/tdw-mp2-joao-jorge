@@ -17,7 +17,9 @@ const WeaponSearch = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [sortBy, setSortBy] = useState(''); // New state for sorting
   const [directCrafting, setDirectCrafting] = useState(false); // Toggle for direct crafting
+  const [suggestions, setSuggestions] = useState([]); // State for suggestions
 
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,17 +67,28 @@ const WeaponSearch = () => {
     fetchData();
   }, []);
 
-  // Apply filters based on selected values
-  const filteredWeapons = weapons.filter(weapon => {
-    const matchesName = searchType === 'name' ? weapon.name.toLowerCase().includes(query.toLowerCase()) : true;
-    const matchesRarity = filteredRarity ? weapon.rarity === parseInt(filteredRarity) : true;
-    const matchesDamageType = filteredDamageType ? weapon.damageType === filteredDamageType : true;
-    const matchesWeaponType = selectedWeaponType ? weapon.type === selectedWeaponType : true;
-    const matchesDirectCrafting = directCrafting ? weapon.crafting?.craftable === true : true;
+  
 
-    return matchesName && matchesRarity && matchesDamageType && matchesWeaponType && matchesDirectCrafting;
-  });
 
+
+// Apply filters based on selected values
+const filteredWeapons = weapons.filter(weapon => {
+  // Filter by search query
+  const matchesQuery = query
+    ? weapon.name.toLowerCase().includes(query.toLowerCase())
+    : true;
+
+  // Apply all other filters (rarity, damageType, weaponType, etc.)
+  const matchesRarity = filteredRarity ? weapon.rarity === parseInt(filteredRarity) : true;
+  const matchesDamageType = filteredDamageType ? weapon.damageType === filteredDamageType : true;
+  const matchesWeaponType = selectedWeaponType ? weapon.type === selectedWeaponType : true;
+  const matchesDirectCrafting = directCrafting ? weapon.crafting?.craftable === true : true;
+
+  // Return true only if all filter conditions match
+  return matchesQuery && matchesRarity && matchesDamageType && matchesWeaponType && matchesDirectCrafting;
+});
+
+  
   const calculateSharpness = (durability) => {
     return durability?.reduce((sum, level) => sum + Object.values(level).reduce((a, b) => a + b, 0), 0) || 0;
   };
@@ -113,6 +126,16 @@ const sortedWeapons = filteredWeapons.sort((a, b) => {
     }
   };
 
+  const updateSuggestions = (query) => {
+    const filtered = weapons.filter(weapon =>
+      weapon.name.toLowerCase().includes(query.toLowerCase())
+    ).slice(0, 5); // Limit to 5 suggestions
+    setSuggestions(filtered);
+  };
+
+
+  
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-4xl font-bold text-center mb-4">Search for Weapons</h1>
@@ -123,9 +146,30 @@ const sortedWeapons = filteredWeapons.sort((a, b) => {
             type="text"
             placeholder="Search weapons..."
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={e => {
+              setQuery(e.target.value);
+              updateSuggestions(e.target.value); // Update suggestions as the query changes
+            }}
             className="p-2 border border-gray-300 rounded-lg w-full"
           />
+                    
+          {/* Suggestions dropdown */}
+          {query && suggestions.length > 0 && (
+            <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto z-10">
+              {suggestions.map(weapon => (
+                <div
+                  key={weapon.id}
+                  className="p-2 cursor-pointer hover:bg-gray-200"
+                  onClick={() => {
+                    setQuery(weapon.name); // Set the input value to the selected suggestion
+                    setSuggestions([]); // Clear suggestions after selection
+                  }}
+                >
+                  {weapon.name}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <select
@@ -169,6 +213,7 @@ const sortedWeapons = filteredWeapons.sort((a, b) => {
     className="toggle-checkbox"
   />
 </label>
+
       </div>
 
       {/* Filter dropdowns for rarity and damage type */}

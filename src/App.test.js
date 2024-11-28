@@ -1,6 +1,5 @@
-import { render, screen } from '@testing-library/react';
-import HomePage from './homepage';
-
+import { render, screen } from "@testing-library/react";
+import HomePage from "./homepage";
 
 test("renders 'Hunter's Book' heading", () => {
   render(<HomePage />);

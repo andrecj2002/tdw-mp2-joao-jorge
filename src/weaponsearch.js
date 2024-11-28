@@ -67,9 +67,6 @@ const WeaponSearch = () => {
     fetchData();
   }, []);
 
-  
-
-
 
 // Apply filters based on selected values
 const filteredWeapons = weapons.filter(weapon => {

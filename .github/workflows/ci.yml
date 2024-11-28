@@ -46,8 +46,6 @@ jobs:
         run: rm -rf node_modules
       - name: Install dependencies
         run: npm install
-      - name: Verify react-scripts installation
-        run: npm ls react-scripts
 
   run-tests:
     name: Run Tests
@@ -105,4 +103,4 @@ jobs:
         with:
           node-version: "18"
       - name: Deploy to Vercel
-        run: npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm --cwd 
+        run: npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm --cwd

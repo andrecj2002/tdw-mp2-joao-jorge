@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect } from "react";
+import styled from "styled-components";
 
 // Styled Components for the homepage
 const HomeContainer = styled.div`
@@ -39,7 +39,7 @@ const TitleContainer = styled.div`
 `;
 
 const Title = styled.h1`
-  font-family: 'Monster Hunter Condensed', sans-serif;
+  font-family: "Monster Hunter Condensed", sans-serif;
   font-size: 8rem; /* Increased title size */
   color: white;
   text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8); /* Stronger shadow for better contrast */
@@ -56,9 +56,9 @@ const Subtitle = styled.p`
 const HomePage = () => {
   // Disable scrolling on the page
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = 'auto'; // Re-enable scrolling when the component is unmounted
+      document.body.style.overflow = "auto"; // Re-enable scrolling when the component is unmounted
     };
   }, []);
 

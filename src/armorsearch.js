@@ -1,91 +1,93 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import the useNavigate hook
-import semImagem from './media/no-image-svgrepo-com.svg';
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import semImagem from "./media/no-image-svgrepo-com.svg";
 
 const ArmorSearch = () => {
   const [armor, setArmor] = useState([]);
   const [skills, setSkills] = useState([]);
-  const [query, setQuery] = useState('');
-  const [searchType, setSearchType] = useState('name');
+  const [query, setQuery] = useState("");
+  const [searchType, setSearchType] = useState("name");
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(12);
   const [filteredSkills, setFilteredSkills] = useState([]);
   const [filteredNames, setFilteredNames] = useState([]);
-  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false); // Track suggestions box state
+  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
 
-  const suggestionsRef = useRef(null); // Reference for suggestions box
-  const inputRef = useRef(null); // Reference for the input field
-  const navigate = useNavigate(); // Initialize useNavigate hook
+  const suggestionsRef = useRef(null);
+  const inputRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const cachedData = localStorage.getItem('armorData');
+        const cachedData = localStorage.getItem("armorData");
         if (cachedData) {
           setArmor(JSON.parse(cachedData));
         } else {
-          const response = await fetch('https://mhw-db.com/armor');
+          const response = await fetch("https://mhw-db.com/armor");
           const data = await response.json();
-          localStorage.setItem('armorData', JSON.stringify(data));
+          localStorage.setItem("armorData", JSON.stringify(data));
           setArmor(data);
         }
 
-        const skillsResponse = await fetch('https://mhw-db.com/skills');
+        const skillsResponse = await fetch("https://mhw-db.com/skills");
         const skillsData = await skillsResponse.json();
         setSkills(skillsData);
 
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
         setLoading(false);
       }
     };
     fetchData();
   }, []);
 
-  // Filter skills based on query for suggestions
   useEffect(() => {
-    if (searchType === 'skills') {
+    if (searchType === "skills") {
       setFilteredSkills(
-        skills.filter(skill =>
-          skill.name.toLowerCase().includes(query.toLowerCase())
-        ).slice(0, 5) // Limit suggestions to 5
+        skills
+          .filter((skill) =>
+            skill.name.toLowerCase().includes(query.toLowerCase()),
+          )
+          .slice(0, 5), // Limita a 5
       );
     }
   }, [query, searchType, skills]);
 
-  // Filter armor names based on query for suggestions
+  // Filtro de Armaduras
   useEffect(() => {
-    if (searchType === 'name') {
+    if (searchType === "name") {
       setFilteredNames(
-        armor.filter(piece =>
-          piece.name.toLowerCase().includes(query.toLowerCase())
-        ).slice(0, 5) // Limit suggestions to 5
+        armor
+          .filter((piece) =>
+            piece.name.toLowerCase().includes(query.toLowerCase()),
+          )
+          .slice(0, 5), // Limita a 5
       );
     }
   }, [query, searchType, armor]);
 
-  // Reset page and query when searchType changes
   useEffect(() => {
-    setQuery('');
+    setQuery("");
     setCurrentPage(1);
   }, [searchType]);
 
-  const filteredArmor = armor.filter(piece => {
+  const filteredArmor = armor.filter((piece) => {
     switch (searchType) {
-      case 'name':
+      case "name":
         return piece.name.toLowerCase().includes(query.toLowerCase());
-      case 'rarity':
+      case "rarity":
         return piece.rarity === parseInt(query);
-      case 'rank':
+      case "rank":
         return piece.rank.toLowerCase() === query.toLowerCase();
-      case 'slots':
+      case "slots":
         return piece.slots.length >= parseInt(query);
-      case 'skills':
-        return piece.skills.some(skill =>
-          skill.skillName.toLowerCase().includes(query.toLowerCase())
+      case "skills":
+        return piece.skills.some((skill) =>
+          skill.skillName.toLowerCase().includes(query.toLowerCase()),
         );
       default:
         return true;
@@ -96,14 +98,14 @@ const ArmorSearch = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredArmor.slice(indexOfFirstItem, indexOfLastItem);
 
-  const paginate = pageNumber => setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const totalPages = Math.ceil(filteredArmor.length / itemsPerPage);
   const maxPageNumbers = 8;
   const startPage = Math.max(1, currentPage - Math.floor(maxPageNumbers / 2));
   const endPage = Math.min(totalPages, startPage + maxPageNumbers - 1);
 
-  // Close suggestions if clicked outside
+  // Fecha Sugestões ao clicar whereverf
   const handleClickOutside = (e) => {
     if (suggestionsRef.current && !suggestionsRef.current.contains(e.target)) {
       setIsSuggestionsOpen(false);
@@ -111,8 +113,8 @@ const ArmorSearch = () => {
   };
 
   useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -121,30 +123,33 @@ const ArmorSearch = () => {
       <h1 className="text-4xl font-bold text-center mb-4">Search for Armor</h1>
 
       <div className="flex justify-center items-center mb-4 space-x-4">
-        {/* Search input and select */}
+        {/* Procurar Inputs */}
         <div className="relative w-1/2">
           <input
             type="text"
             placeholder="Search armor..."
             value={query}
-            onChange={e => {
+            onChange={(e) => {
               setQuery(e.target.value);
-              setIsSuggestionsOpen(true);  // Open suggestions when user types
+              setIsSuggestionsOpen(true); // Sugestões dinamicas
             }}
             ref={inputRef}
             className="p-2 border border-gray-300 rounded-lg w-full"
           />
 
-          {/* Name and Skill Suggestions */}
-          {searchType === 'name' && query && isSuggestionsOpen && (
-            <ul className="absolute bg-white border w-full max-h-48 overflow-auto mt-1" ref={suggestionsRef}>
-              {filteredNames.map(piece => (
+          {/* Sugestões de nomes e skills */}
+          {searchType === "name" && query && isSuggestionsOpen && (
+            <ul
+              className="absolute bg-white border w-full max-h-48 overflow-auto mt-1"
+              ref={suggestionsRef}
+            >
+              {filteredNames.map((piece) => (
                 <li
                   key={piece.id}
                   className="p-2 cursor-pointer hover:bg-gray-200"
                   onClick={() => {
                     setQuery(piece.name);
-                    setIsSuggestionsOpen(false); // Close suggestions on selection
+                    setIsSuggestionsOpen(false);
                   }}
                 >
                   {piece.name}
@@ -153,15 +158,18 @@ const ArmorSearch = () => {
             </ul>
           )}
 
-          {searchType === 'skills' && query && isSuggestionsOpen && (
-            <ul className="absolute bg-white border w-full max-h-48 overflow-auto mt-1" ref={suggestionsRef}>
-              {filteredSkills.map(skill => (
+          {searchType === "skills" && query && isSuggestionsOpen && (
+            <ul
+              className="absolute bg-white border w-full max-h-48 overflow-auto mt-1"
+              ref={suggestionsRef}
+            >
+              {filteredSkills.map((skill) => (
                 <li
                   key={skill.id}
                   className="p-2 cursor-pointer hover:bg-gray-200"
                   onClick={() => {
                     setQuery(skill.name || skill.skillName);
-                    setIsSuggestionsOpen(false); // Close suggestions on selection
+                    setIsSuggestionsOpen(false);
                   }}
                 >
                   {skill.name || skill.skillName}
@@ -171,10 +179,10 @@ const ArmorSearch = () => {
           )}
         </div>
 
-        {/* Search Type Dropdown */}
+        {/* Tipos de Filtros */}
         <select
           value={searchType}
-          onChange={e => setSearchType(e.target.value)}
+          onChange={(e) => setSearchType(e.target.value)}
           className="p-2 border border-gray-300 rounded-lg"
         >
           <option value="name">Name</option>
@@ -185,16 +193,16 @@ const ArmorSearch = () => {
         </select>
       </div>
 
-      {/* Filter Dropdowns Based on Search Type */}
+      {/* Pull da API para os filtros */}
       <div className="flex justify-center space-x-4 mb-4">
-        {searchType === 'skills' && (
+        {searchType === "skills" && (
           <select
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
             className="p-2 border border-gray-300 rounded-lg"
           >
             <option value="">Select a Skill</option>
-            {skills.map(skill => (
+            {skills.map((skill) => (
               <option key={skill.id} value={skill.name || skill.skillName}>
                 {skill.name || skill.skillName}
               </option>
@@ -202,13 +210,13 @@ const ArmorSearch = () => {
           </select>
         )}
 
-        {searchType === 'rarity' && (
+        {searchType === "rarity" && (
           <select
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
             className="p-2 border border-gray-300 rounded-lg"
           >
-            {[...Array(12).keys()].map(i => (
+            {[...Array(12).keys()].map((i) => (
               <option key={i + 1} value={i + 1}>
                 {i + 1}
               </option>
@@ -216,10 +224,10 @@ const ArmorSearch = () => {
           </select>
         )}
 
-        {searchType === 'rank' && (
+        {searchType === "rank" && (
           <select
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
             className="p-2 border border-gray-300 rounded-lg"
           >
             <option value="low">Low</option>
@@ -228,13 +236,13 @@ const ArmorSearch = () => {
           </select>
         )}
 
-        {searchType === 'slots' && (
+        {searchType === "slots" && (
           <select
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
             className="p-2 border border-gray-300 rounded-lg"
           >
-            {[2, 3].map(i => (
+            {[2, 3].map((i) => (
               <option key={i} value={i}>
                 {i}
               </option>
@@ -243,7 +251,6 @@ const ArmorSearch = () => {
         )}
       </div>
 
-      {/* Added more padding below the search bar */}
       <div className="pb-8"></div>
 
       {loading ? (
@@ -251,11 +258,11 @@ const ArmorSearch = () => {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
           {currentItems.length > 0 ? (
-            currentItems.map(piece => (
+            currentItems.map((piece) => (
               <div
                 key={piece.id}
                 className="p-2 border rounded-lg cursor-pointer"
-                onClick={() => navigate(`/armor/${piece.id}`)} // Navigate to ArmorDetails on click
+                onClick={() => navigate(`/armor/${piece.id}`)}
               >
                 <h2 className="text-lg font-bold">{piece.name}</h2>
                 <div className="flex justify-center items-center space-x-2">
@@ -279,46 +286,43 @@ const ArmorSearch = () => {
         </div>
       )}
 
-      {/* Pagination with Next and Previous Arrows */}
+      {/* Paginaçao */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center mt-4 space-x-2">
-  {/* Previous arrow */}
-  {currentPage > 1 && (
-    <button
-      onClick={() => paginate(currentPage - 1)}
-      className="px-3 py-2 bg-blue-500 text-white rounded"
-    >
-      &lt;
-    </button>
-  )}
+          {currentPage > 1 && (
+            <button
+              onClick={() => paginate(currentPage - 1)}
+              className="px-3 py-2 bg-blue-500 text-white rounded"
+            >
+              &lt;
+            </button>
+          )}
 
-  {/* Page numbers */}
-  {Array.from({ length: totalPages }, (_, i) => i + 1)
-    .slice(startPage - 1, endPage)
-    .map(pageNumber => (
-      <button
-        key={pageNumber}
-        onClick={() => paginate(pageNumber)}
-        className={`px-3 py-2 ${
-          currentPage === pageNumber
-            ? 'bg-blue-700 text-white'
-            : 'bg-gray-200 text-black'
-        } rounded`}
-      >
-        {pageNumber}
-      </button>
-    ))}
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .slice(startPage - 1, endPage)
+            .map((pageNumber) => (
+              <button
+                key={pageNumber}
+                onClick={() => paginate(pageNumber)}
+                className={`px-3 py-2 ${
+                  currentPage === pageNumber
+                    ? "bg-blue-700 text-white"
+                    : "bg-gray-200 text-black"
+                } rounded`}
+              >
+                {pageNumber}
+              </button>
+            ))}
 
-  {/* Next arrow */}
-  {currentPage < totalPages && (
-    <button
-      onClick={() => paginate(currentPage + 1)}
-      className="px-3 py-2 bg-blue-500 text-white rounded"
-    >
-      &gt;
-    </button>
-  )}
-</div>
+          {currentPage < totalPages && (
+            <button
+              onClick={() => paginate(currentPage + 1)}
+              className="px-3 py-2 bg-blue-500 text-white rounded"
+            >
+              &gt;
+            </button>
+          )}
+        </div>
       )}
     </div>
   );

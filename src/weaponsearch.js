@@ -1,86 +1,34 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import semImagem from "./media/no-image-svgrepo-com.svg";
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchWeapons } from './redux/weaponActions';
+import { useNavigate } from 'react-router-dom';
+import semImagem from './media/no-image-svgrepo-com.svg';
 
 const WeaponSearch = () => {
-  const [weapons, setWeapons] = useState([]);
-  const [query, setQuery] = useState("");
-  const [searchType, setSearchType] = useState("name");
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { weapons, loading, rarities, damageTypes, error } = useSelector(state => state.weapons);
+  const [query, setQuery] = useState('');
+  const [searchType, setSearchType] = useState('name');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(12);
-  const [rarities, setRarities] = useState([]);
-  const [damageTypes, setDamageTypes] = useState([]);
-  const [filteredRarity, setFilteredRarity] = useState("");
-  const [filteredDamageType, setFilteredDamageType] = useState("");
-  const [selectedWeaponType, setSelectedWeaponType] = useState("");
+  const [filteredRarity, setFilteredRarity] = useState('');
+  const [filteredDamageType, setFilteredDamageType] = useState('');
+  const [selectedWeaponType, setSelectedWeaponType] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
-  const [sortBy, setSortBy] = useState(""); // New state for sorting
-  const [directCrafting, setDirectCrafting] = useState(false); // Toggle for direct crafting
-  const [suggestions, setSuggestions] = useState([]); // State for suggestions
+  const [sortBy, setSortBy] = useState('');
+  const [directCrafting, setDirectCrafting] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+    dispatch(fetchWeapons());
+  }, [dispatch]);
 
-      // Check if weapons are already in localStorage
-      const cachedWeapons = localStorage.getItem("weapons");
-      if (cachedWeapons) {
-        const cachedData = JSON.parse(cachedWeapons);
-        setWeapons(cachedData.weapons);
-        setRarities(cachedData.rarities);
-        setDamageTypes(cachedData.damageTypes);
-        setLoading(false);
-      } else {
-        try {
-          const response = await fetch("https://mhw-db.com/weapons");
-          const data = await response.json();
-          setWeapons(data);
-
-          // Extract unique values for filters
-          const uniqueRarities = [
-            ...new Set(data.map((weapon) => weapon.rarity)),
-          ];
-          const uniqueDamageTypes = [
-            ...new Set(
-              data.map((weapon) => weapon.damageType || "No damage type"),
-            ),
-          ];
-
-          setRarities(uniqueRarities);
-          setDamageTypes(uniqueDamageTypes);
-
-          // Save the fetched data in localStorage for future use
-          localStorage.setItem(
-            "weapons",
-            JSON.stringify({
-              weapons: data,
-              rarities: uniqueRarities,
-              damageTypes: uniqueDamageTypes,
-            }),
-          );
-
-          setLoading(false);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // Apply filters based on selected values
-  const filteredWeapons = weapons.filter((weapon) => {
-    // Filter by search query
+  const filteredWeapons = weapons.filter(weapon => {
     const matchesQuery = query
       ? weapon.name.toLowerCase().includes(query.toLowerCase())
       : true;
-
-    // Apply all other filters (rarity, damageType, weaponType, etc.)
     const matchesRarity = filteredRarity
       ? weapon.rarity === parseInt(filteredRarity)
       : true;
@@ -94,7 +42,6 @@ const WeaponSearch = () => {
       ? weapon.crafting?.craftable === true
       : true;
 
-    // Return true only if all filter conditions match
     return (
       matchesQuery &&
       matchesRarity &&
@@ -104,86 +51,74 @@ const WeaponSearch = () => {
     );
   });
 
-  const calculateSharpness = (durability) => {
+  const calculateSharpness = durability => {
     return (
       durability?.reduce(
         (sum, level) => sum + Object.values(level).reduce((a, b) => a + b, 0),
-        0,
+        0
       ) || 0
     );
   };
 
-  // Sort weapons based on selected criteria (damage or sharpness)
   const sortedWeapons = filteredWeapons.sort((a, b) => {
-    if (sortBy === "damage") {
+    if (sortBy === 'damage') {
       const damageA = a.attack?.raw || 0;
       const damageB = b.attack?.raw || 0;
       return damageA - damageB;
-    } else if (sortBy === "sharpness") {
-      return (
-        calculateSharpness(a.durability) - calculateSharpness(b.durability)
-      );
+    } else if (sortBy === 'sharpness') {
+      return calculateSharpness(a.durability) - calculateSharpness(b.durability);
     }
     return 0;
   });
 
-  // Paginate the sorted results
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = sortedWeapons.slice(indexOfFirstItem, indexOfLastItem);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = pageNumber => setCurrentPage(pageNumber);
 
   const totalPages = Math.ceil(sortedWeapons.length / itemsPerPage);
   const maxPageNumbers = 8;
   const startPage = Math.max(1, currentPage - Math.floor(maxPageNumbers / 2));
   const endPage = Math.min(totalPages, startPage + maxPageNumbers - 1);
 
-  // Handle click outside the modal to close it
-  const closeModal = (e) => {
+  const closeModal = e => {
     if (e.target === e.currentTarget) {
       setModalOpen(false);
     }
   };
 
-  const updateSuggestions = (query) => {
+  const updateSuggestions = query => {
     const filtered = weapons
-      .filter((weapon) =>
-        weapon.name.toLowerCase().includes(query.toLowerCase()),
-      )
-      .slice(0, 5); // Limit to 5 suggestions
+      .filter(weapon => weapon.name.toLowerCase().includes(query.toLowerCase()))
+      .slice(0, 5);
     setSuggestions(filtered);
   };
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-4xl font-bold text-center mb-4">
-        Search for Weapons
-      </h1>
-
+      <h1 className="text-4xl font-bold text-center mb-4">Search for Weapons</h1>
       <div className="flex justify-center items-center mb-4 space-x-4">
         <div className="relative w-1/2">
           <input
             type="text"
             placeholder="Search weapons..."
             value={query}
-            onChange={(e) => {
+            onChange={e => {
               setQuery(e.target.value);
-              updateSuggestions(e.target.value); // Update suggestions as the query changes
+              updateSuggestions(e.target.value);
             }}
             className="p-2 border border-gray-300 rounded-lg w-full"
           />
-
-          {/* Suggestions dropdown */}
           {query && suggestions.length > 0 && (
             <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto z-10">
-              {suggestions.map((weapon) => (
+              {suggestions.map(weapon => (
                 <div
                   key={weapon.id}
                   className="p-2 cursor-pointer hover:bg-gray-200"
                   onClick={() => {
-                    setQuery(weapon.name); // Set the input value to the selected suggestion
-                    setSuggestions([]); // Clear suggestions after selection
+                    setQuery(weapon.name);
+                    setSuggestions([]);
                   }}
                 >
                   {weapon.name}

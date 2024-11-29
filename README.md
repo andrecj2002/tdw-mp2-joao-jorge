@@ -2,7 +2,6 @@
 
 Uma aplicação web dinâmica baseada no jogo *Monster Hunter: World*,  para pesquisar e explorar detalhes de monstros, armas e armaduras através da [MHW API](https://docs.mhw-db.com/). Projeto feito no âmbito da U.C de TDW do Mestrado em Comunicação e Tecnologias Web. 
 
-[![Build Status](https://github.com/seu-usuario/mhw-web-app/actions/workflows/ci.yml/badge.svg)](https://github.com/seu-usuario/mhw-web-app/actions)  
 [![Deployment Status](https://vercel.com/button)](https://mhw-web-app.vercel.app/)
 
 ## **Funcionalidades Principais**  

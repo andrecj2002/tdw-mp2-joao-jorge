@@ -6,7 +6,7 @@ import semImagem from './media/no-image-svgrepo-com.svg';
 
 const WeaponSearch = () => {
   const dispatch = useDispatch();
-  const { weapons, loading, rarities, damageTypes, error } = useSelector(state => state.weapons);
+  const { weapons, loading, rarities, damageTypes} = useSelector(state => state.weapons);
   const [query, setQuery] = useState('');
   const [searchType, setSearchType] = useState('name');
   const [currentPage, setCurrentPage] = useState(1);

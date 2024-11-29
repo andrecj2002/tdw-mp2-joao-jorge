@@ -6,6 +6,9 @@ Uma aplicação web dinâmica baseada no jogo *Monster Hunter: World*,  para pes
 
 ## **Funcionalidades Principais**  
 - **Pesquisa Avançada**: Filtragem detalhada por nome, raridade e atributos específicos.
+- **Detalhes** de Armas, Monstros e Armadura
+- **Visualização Dinâmica** de Detalhes e Tutoriais
+- Em breve: Set Building
   
 ## **Tecnologias Utilizadas**  
 - **[React](https://reactjs.org/)**

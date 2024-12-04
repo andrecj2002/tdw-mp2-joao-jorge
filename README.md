@@ -4,6 +4,8 @@ Uma aplicação web dinâmica baseada no jogo *Monster Hunter: World*,  para pes
 
 - **[Deployment](https://tdw-mp2-joao-jorge.vercel.app)**
 
+## **Arquitetura da APP**  
+![ArquiteturaApp](https://github.com/user-attachments/assets/5032472b-024c-43f9-8eac-77c9d53f137f)
 
 ## **Funcionalidades Principais**  
 - **Pesquisa Avançada**: Filtragem detalhada por nome, raridade e atributos específicos.
